@@ -3,13 +3,15 @@ import { cn } from '@/lib/utils';
 interface TabViewerProps {
   tabString: string;
   className?: string;
+  variant?: 'default' | 'compact';
 }
-export function TabViewer({ tabString, className }: TabViewerProps) {
-  // Simple syntax highlighting for ASCII tabs
+export function TabViewer({ tabString, className, variant = 'default' }: TabViewerProps) {
   const lines = tabString.split('\n');
+  const isCompact = variant === 'compact';
   return (
     <pre className={cn(
-      "font-mono text-sm sm:text-base leading-tight p-6 overflow-x-auto bg-zinc-950 text-zinc-300 selection:bg-orange-500/30",
+      "font-mono leading-tight p-6 overflow-x-auto bg-zinc-950 text-zinc-300 selection:bg-orange-500/30 rounded-xl border border-zinc-800",
+      isCompact ? "text-xs sm:text-sm p-4" : "text-sm sm:text-base",
       className
     )}>
       {lines.map((line, i) => {

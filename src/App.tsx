@@ -10,6 +10,8 @@ import { HomePage } from '@/pages/HomePage';
 import { AssessmentPage } from '@/pages/AssessmentPage';
 import { ExerciseLibraryPage } from '@/pages/ExerciseLibraryPage';
 import { ExerciseDetailPage } from '@/pages/ExerciseDetailPage';
+import { PracticePage } from '@/pages/PracticePage';
+import { SessionAnalysisPage } from '@/pages/SessionAnalysisPage';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -40,7 +42,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/practice/:id",
-    element: <div className="p-10 text-center">Practice Mode Coming in Phase 2!</div>,
+    element: <PracticePage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/practice/:id/analysis",
+    element: <SessionAnalysisPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {
