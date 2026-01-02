@@ -10,15 +10,10 @@ import { HomePage } from '@/pages/HomePage';
 import { AssessmentPage } from '@/pages/AssessmentPage';
 import { ExerciseLibraryPage } from '@/pages/ExerciseLibraryPage';
 import { ExerciseDetailPage } from '@/pages/ExerciseDetailPage';
-import { PracticePage } from '@/pages/PracticePage';
-import { SessionAnalysisPage } from '@/pages/SessionAnalysisPage';
-import { ProgressPage } from '@/pages/ProgressPage';
-import { RoadmapsPage } from '@/pages/RoadmapsPage';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5,
-      retry: 1,
     },
   },
 });
@@ -45,22 +40,17 @@ const router = createBrowserRouter([
   },
   {
     path: "/practice/:id",
-    element: <PracticePage />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    path: "/practice/:id/analysis",
-    element: <SessionAnalysisPage />,
+    element: <div className="p-10 text-center">Practice Mode Coming in Phase 2!</div>,
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/progress",
-    element: <ProgressPage />,
+    element: <div className="p-10 text-center text-white">Progress Analytics Dashboard</div>,
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/roadmaps",
-    element: <RoadmapsPage />,
+    element: <div className="p-10 text-center text-white">Personalized Learning Paths</div>,
     errorElement: <RouteErrorBoundary />,
   },
 ]);
