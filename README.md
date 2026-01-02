@@ -1,6 +1,6 @@
 # Cloudflare Workers Full-Stack Template
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/alexandergillie/guitar-coach-pwa-fretflow)
 
 A production-ready full-stack template for Cloudflare Workers featuring a React frontend with Tailwind CSS & shadcn/ui, Hono backend with Durable Objects for stateful entities (Users, ChatBoards, Messages), TanStack Query for data fetching, and seamless local development/deployments.
 
@@ -122,7 +122,7 @@ npx shadcn@latest add <component>
    ```
 
 3. **One-Click Deploy**:
-   [cloudflarebutton]
+   [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/alexandergillie/guitar-coach-pwa-fretflow)
 
 **Assets**: Frontend built to `/dist`, served as SPA via Workers Sites. API at `/api/*`.
 
