@@ -12,10 +12,13 @@ import { ExerciseLibraryPage } from '@/pages/ExerciseLibraryPage';
 import { ExerciseDetailPage } from '@/pages/ExerciseDetailPage';
 import { PracticePage } from '@/pages/PracticePage';
 import { SessionAnalysisPage } from '@/pages/SessionAnalysisPage';
+import { ProgressPage } from '@/pages/ProgressPage';
+import { RoadmapsPage } from '@/pages/RoadmapsPage';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5,
+      retry: 1,
     },
   },
 });
@@ -52,12 +55,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/progress",
-    element: <div className="p-10 text-center text-white">Progress Analytics Dashboard</div>,
+    element: <ProgressPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/roadmaps",
-    element: <div className="p-10 text-center text-white">Personalized Learning Paths</div>,
+    element: <RoadmapsPage />,
     errorElement: <RouteErrorBoundary />,
   },
 ]);

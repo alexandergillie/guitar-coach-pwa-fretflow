@@ -5,8 +5,10 @@ import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
-import { CheckCircle2, ChevronRight, ChevronLeft, Target } from 'lucide-react';
+import { CheckCircle2, ChevronRight, ChevronLeft, Target, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/lib/api-client';
 const CATEGORIES = [
   { id: 'alternatePicking', label: 'Alternate Picking' },
   { id: 'sweepPicking', label: 'Sweep Picking' },
@@ -23,12 +25,26 @@ export function AssessmentPage() {
     Object.fromEntries(CATEGORIES.map(c => [c.id, 50]))
   );
   const [isFinished, setIsFinished] = useState(false);
+  const queryClient = useQueryClient();
+  const assessmentMutation = useMutation({
+    mutationFn: (skillProfile: any) => api('/api/user/assessment', {
+      method: 'POST',
+      body: JSON.stringify({ skillProfile })
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user/profile'] });
+      setIsFinished(true);
+      toast.success('Assessment complete! Skill profile updated.');
+    },
+    onError: (err) => {
+      toast.error('Failed to save assessment: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    }
+  });
   const handleNext = () => {
     if (step < CATEGORIES.length - 1) {
       setStep(step + 1);
     } else {
-      setIsFinished(true);
-      toast.success('Assessment complete! Skill profile updated.');
+      assessmentMutation.mutate(scores);
     }
   };
   const handleBack = () => {
@@ -110,8 +126,8 @@ export function AssessmentPage() {
               <span>{Math.round(((step + 1) / CATEGORIES.length) * 100)}%</span>
             </div>
             <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-orange-500 transition-all duration-300" 
+              <div
+                className="h-full bg-orange-500 transition-all duration-300"
                 style={{ width: `${((step + 1) / CATEGORIES.length) * 100}%` }}
               />
             </div>
@@ -138,8 +154,18 @@ export function AssessmentPage() {
               <Button variant="ghost" onClick={handleBack} disabled={step === 0}>
                 <ChevronLeft className="mr-2 h-4 w-4" /> Back
               </Button>
-              <Button onClick={handleNext} className="bg-orange-500 hover:bg-orange-600 px-8">
-                {step === CATEGORIES.length - 1 ? 'Finish' : 'Next'} <ChevronRight className="ml-2 h-4 w-4" />
+              <Button 
+                onClick={handleNext} 
+                className="bg-orange-500 hover:bg-orange-600 px-8"
+                disabled={assessmentMutation.isPending}
+              >
+                {assessmentMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    {step === CATEGORIES.length - 1 ? 'Finish' : 'Next'} <ChevronRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
