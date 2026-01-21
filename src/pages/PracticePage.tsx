@@ -7,6 +7,8 @@ import { Visualizer } from '@/components/practice/Visualizer';
 import { Metronome } from '@/components/practice/Metronome';
 import { TabViewer } from '@/components/ui/tab-viewer';
 import { useAudioEngine } from '@/hooks/use-audio-engine';
+import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
+import { parseTablature } from '@/lib/tablature-parser';
 import { ChevronLeft, Flag, Info, Mic, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -16,9 +18,13 @@ export function PracticePage() {
   const navigate = useNavigate();
   const exercise = SEED_EXERCISES.find(e => e.id === id);
   const { analyser, isActive, startEngine, stopEngine, error, audioContext } = useAudioEngine();
+  const { pitch, note, bpm, detectedNotes, calculateAccuracy, reset: resetAnalysis } = useAudioAnalysis(
+    analyser,
+    audioContext,
+    isActive
+  );
   const [countdown, setCountdown] = useState<number | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
-  const [detectedBpm, setDetectedBpm] = useState<number>(0);
   const queryClient = useQueryClient();
   const sessionMutation = useMutation({
     mutationFn: (data: any) => api('/api/sessions', {
@@ -37,22 +43,9 @@ export function PracticePage() {
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
-  // Mock BPM detection integration for UI demonstration
-  // In a real production scenario with 'realtime-bpm-analyzer', 
-  // we would hook into the AudioWorklet or ScriptProcessorNode here.
-  useEffect(() => {
-    let interval: number;
-    if (isActive && sessionStartTime) {
-      interval = window.setInterval(() => {
-        // Simulating real-time BPM detection near the target
-        const jitter = Math.random() * 10 - 5;
-        setDetectedBpm(Math.round((exercise?.bpm || 120) + jitter));
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isActive, sessionStartTime, exercise?.bpm]);
   const handleStart = async () => {
     await startEngine();
+    resetAnalysis(); // Reset audio analysis state
     setCountdown(3);
     const timer = setInterval(() => {
       setCountdown(prev => {
@@ -68,12 +61,27 @@ export function PracticePage() {
   const handleFinish = () => {
     stopEngine();
     const duration = sessionStartTime ? Math.floor((Date.now() - sessionStartTime) / 1000) : 0;
+
+    // Parse tablature to get expected notes
+    const expectedNotes = parseTablature(exercise!.tablature, exercise!.bpm);
+
+    // Calculate real accuracy using tablature parser
+    const calculatedAccuracy = calculateAccuracy(expectedNotes);
+
+    console.log('[Practice Session]', {
+      duration,
+      detectedNotes: detectedNotes.length,
+      expectedNotes: expectedNotes.length,
+      accuracy: calculatedAccuracy,
+      bpm
+    });
+
     sessionMutation.mutate({
       userId: 'u1',
       exerciseId: id!,
       duration,
-      accuracy: 85 + Math.floor(Math.random() * 10), // Mocked calculation
-      achievedBpm: detectedBpm || exercise?.bpm || 120
+      accuracy: calculatedAccuracy,
+      achievedBpm: bpm || exercise?.bpm || 120
     });
   };
   if (!exercise) return <div>Exercise not found</div>;
@@ -89,9 +97,14 @@ export function PracticePage() {
             <p className="text-xs text-muted-foreground uppercase">{exercise.difficulty} • {exercise.bpm} BPM</p>
           </div>
           <div className="flex items-center gap-4">
-            {sessionStartTime && (
+            {sessionStartTime && bpm && (
               <div className="hidden sm:block text-orange-500 font-mono text-sm font-bold">
-                DETECTED: {detectedBpm} BPM
+                DETECTED: {bpm} BPM
+              </div>
+            )}
+            {sessionStartTime && note && (
+              <div className="hidden md:block text-violet-400 font-mono text-sm font-bold">
+                NOTE: {note}
               </div>
             )}
             <Button variant="ghost" size="icon" onClick={() => toast.info(exercise.description)}>
@@ -100,8 +113,8 @@ export function PracticePage() {
           </div>
         </div>
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-          <div className="flex-1 flex flex-col p-6 space-y-6 overflow-y-auto">
-            <div className="relative aspect-video rounded-3xl bg-zinc-900/30 border border-zinc-800 flex items-center justify-center overflow-hidden">
+          <div className="flex-1 flex flex-col p-6 gap-4">
+            <div className="relative flex-1 min-h-0 rounded-3xl bg-zinc-900/30 border border-zinc-800 flex items-center justify-center overflow-hidden">
               {!isActive ? (
                 <div className="text-center space-y-4">
                   <Mic className="h-12 w-12 mx-auto text-zinc-700" />
@@ -123,14 +136,16 @@ export function PracticePage() {
                 </>
               )}
             </div>
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Reference Tab</h3>
+            <div className="flex-shrink-0">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">Reference Tab</h3>
               <TabViewer tabString={exercise.tablature} variant="compact" />
             </div>
           </div>
-          <div className="w-full md:w-96 border-l border-zinc-800 p-6 flex flex-col gap-6 bg-zinc-950">
-            <Metronome initialBpm={exercise.bpm} />
-            <div className="mt-auto space-y-3">
+          <div className="w-full md:w-96 border-l border-zinc-800 p-6 flex flex-col bg-zinc-950">
+            <div className="flex-shrink-0">
+              <Metronome initialBpm={exercise.bpm} />
+            </div>
+            <div className="mt-auto pt-6 space-y-3 flex-shrink-0">
               <Button
                 onClick={handleFinish}
                 className="w-full h-14 bg-orange-600 hover:bg-orange-700 text-lg font-bold"
@@ -142,9 +157,9 @@ export function PracticePage() {
                   <><Flag className="mr-2 h-5 w-5" /> Finish Session</>
                 )}
               </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full text-muted-foreground" 
+              <Button
+                variant="ghost"
+                className="w-full text-muted-foreground"
                 onClick={() => navigate(`/exercise/${id}`)}
                 disabled={sessionMutation.isPending}
               >

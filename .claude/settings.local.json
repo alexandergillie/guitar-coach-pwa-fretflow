@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun run build)",
+      "Bash(npm run build:*)",
+      "Bash(powershell -c \"irm bun.sh/install.ps1|iex\")",
+      "Bash(export PATH=\"$HOME/.bun/bin:$PATH\")",
+      "Bash(bun --version:*)",
+      "Bash(bun install)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(bun dev)",
+      "Bash(bun add:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

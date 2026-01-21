@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FretFlow Icon Generator</title>
+</head>
+<body>
+  <h1>Generating FretFlow Icons...</h1>
+  <canvas id="canvas"></canvas>
+  <script>
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+    function generateIcon(size) {
+      const canvas = document.getElementById('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // Background with gradient (purple theme)
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#8b5cf6'); // violet-500
+      gradient.addColorStop(1, '#6d28d9'); // violet-700
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+
+      // Add guitar fretboard design
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = size * 0.02;
+
+      // Draw strings (horizontal lines)
+      const stringCount = 6;
+      const padding = size * 0.2;
+      const stringSpacing = (size - padding * 2) / (stringCount - 1);
+
+      for (let i = 0; i < stringCount; i++) {
+        const y = padding + i * stringSpacing;
+        ctx.beginPath();
+        ctx.moveTo(padding * 0.5, y);
+        ctx.lineTo(size - padding * 0.5, y);
+        ctx.stroke();
+      }
+
+      // Draw frets (vertical lines)
+      const fretCount = 4;
+      const fretSpacing = (size - padding * 2) / fretCount;
+
+      for (let i = 1; i < fretCount; i++) {
+        const x = padding + i * fretSpacing;
+        ctx.beginPath();
+        ctx.moveTo(x, padding);
+        ctx.lineTo(x, size - padding);
+        ctx.stroke();
+      }
+
+      // Add a note marker (circle)
+      ctx.fillStyle = '#fbbf24'; // amber-400
+      const circleSize = size * 0.08;
+      ctx.beginPath();
+      ctx.arc(size * 0.5, size * 0.5, circleSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Convert to blob and download
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `icon-${size}x${size}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    // Generate all icons
+    sizes.forEach((size, index) => {
+      setTimeout(() => generateIcon(size), index * 500);
+    });
+
+    document.body.innerHTML += '<p>Icons generated! Check your Downloads folder and move them to public/icons/</p>';
+  </script>
+</body>
+</html>
