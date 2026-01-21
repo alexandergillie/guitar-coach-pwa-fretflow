@@ -6,6 +6,7 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
+import { PwaInstallPrompt } from '@/components/PwaInstallPrompt';
 import { HomePage } from '@/pages/HomePage';
 import { AssessmentPage } from '@/pages/AssessmentPage';
 import { ExerciseLibraryPage } from '@/pages/ExerciseLibraryPage';
@@ -69,6 +70,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
         <RouterProvider router={router} />
+        <PwaInstallPrompt />
       </ErrorBoundary>
     </QueryClientProvider>
   );
