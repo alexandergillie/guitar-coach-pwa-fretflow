@@ -6,6 +6,9 @@ import { logger } from 'hono/logger';
 import { Env } from './core-utils';
 export * from './core-utils';
 
+// Static import ensures module is bundled for production
+import { userRoutes as staticUserRoutes } from './user-routes';
+
 type UserRoutesModule = { userRoutes: (app: Hono<{ Bindings: Env }>) => void };
 
 const USER_ROUTES_MODULE = './user-routes';
@@ -22,12 +25,17 @@ const safeLoadUserRoutes = async (app: Hono<{ Bindings: Env }>) => {
   if (shouldRetry && now < nextRetryAt) return;
   nextRetryAt = now + RETRY_MS;
 
-  const bust = shouldRetry && import.meta.env?.DEV ? `?t=${now}` : '';
-  const spec = `${USER_ROUTES_MODULE}${bust}`;
-
   try {
-    const mod = (await import(/* @vite-ignore */ spec)) as UserRoutesModule;
-    mod.userRoutes(app);
+    // In development, use dynamic import for hot-reload support
+    // In production, use the statically imported module
+    if (import.meta.env?.DEV && shouldRetry) {
+      const bust = `?t=${now}`;
+      const spec = `${USER_ROUTES_MODULE}${bust}`;
+      const mod = (await import(/* @vite-ignore */ spec)) as UserRoutesModule;
+      mod.userRoutes(app);
+    } else {
+      staticUserRoutes(app);
+    }
     userRoutesLoaded = true;
     userRoutesLoadError = null;
   } catch (e) {

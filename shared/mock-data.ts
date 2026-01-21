@@ -35,44 +35,131 @@ export const DEFAULT_SKILL_PROFILE: SkillProfile = {
 export const SEED_EXERCISES: Exercise[] = [
   {
     id: 'ex1',
-    title: 'Spider Walk Warmup',
-    description: 'The classic chromatic independence exercise.',
+    title: 'Spider Walk',
+    description: 'The classic chromatic finger independence exercise. Practice ascending and descending across all strings, moving up the neck one fret at a time.',
     difficulty: 'Beginner',
-    technique: ['Finger Independence'],
+    technique: ['Finger Independence', 'Chromatic'],
     bpm: 80,
     category: 'Accuracy',
-    tablature: `E|-----------------------1-2-3-4-|\nB|---------------1-2-3-4---------|\nG|-------1-2-3-4-----------------|\nD|1-2-3-4-------------------------|`
+    moveable: true,
+    defaultPosition: 1,
+    // Pattern: 4 notes per string, ascending from low E to high E
+    pattern: [
+      // Low E string (6)
+      [6, 0], [6, 1], [6, 2], [6, 3],
+      // A string (5)
+      [5, 0], [5, 1], [5, 2], [5, 3],
+      // D string (4)
+      [4, 0], [4, 1], [4, 2], [4, 3],
+      // G string (3)
+      [3, 0], [3, 1], [3, 2], [3, 3],
+      // B string (2)
+      [2, 0], [2, 1], [2, 2], [2, 3],
+      // High E string (1)
+      [1, 0], [1, 1], [1, 2], [1, 3],
+    ],
+    drill: {
+      direction: 'alternate',
+      startPosition: 1,
+      endPosition: 12,
+      positionIncrement: 1,
+      repetitionsPerPosition: 1,
+    },
   },
   {
     id: 'ex2',
-    title: 'Minor Pentatonic Speed',
-    description: 'Develop speed with the A minor pentatonic scale.',
-    difficulty: 'Intermediate',
-    technique: ['Alternate Picking'],
-    bpm: 120,
+    title: 'Minor Pentatonic Box 1',
+    description: 'The most common pentatonic shape. Default position is A minor (5th fret). Move to different positions to play in different keys.',
+    difficulty: 'Beginner',
+    technique: ['Alternate Picking', 'Scales'],
+    bpm: 100,
     category: 'Speed',
-    tablature: `E|---------------------------5-8-|\nB|-----------------------5-8-----|\nG|-------------------5-7---------|\nD|---------------5-7-------------|`
+    moveable: true,
+    defaultPosition: 5, // A minor
+    // Pattern: Minor pentatonic box 1, ascending
+    pattern: [
+      // Low E string: root, b3
+      [6, 0], [6, 3],
+      // A string: 4, 5
+      [5, 0], [5, 2],
+      // D string: b7, root
+      [4, 0], [4, 2],
+      // G string: b3, 4
+      [3, 0], [3, 2],
+      // B string: 5, b7
+      [2, 0], [2, 3],
+      // High E string: root, b3
+      [1, 0], [1, 3],
+    ],
+    drill: {
+      direction: 'alternate',
+      startPosition: 5,
+      endPosition: 17, // Up to high A minor
+      positionIncrement: 2, // Move in whole steps through common keys
+    },
   },
   {
     id: 'ex3',
-    title: 'Arpeggio from Hell Intro',
-    description: 'Yngwie-style alternate picking madness.',
-    difficulty: 'Master',
-    technique: ['Alternate Picking'],
-    bpm: 160,
+    title: 'Arpeggio Sequence',
+    description: 'Three-note-per-string arpeggio pattern. Great for developing sweep picking or economy picking across strings.',
+    difficulty: 'Advanced',
+    technique: ['Sweep Picking', 'Arpeggios'],
+    bpm: 120,
     category: 'Speed',
-    tablature: `E|------------------12-13-16-13-12-|\nB|---------12-13-15----------------|\nG|13-14-16-------------------------|`
+    moveable: true,
+    defaultPosition: 12,
+    // Pattern: Ascending arpeggio shape
+    pattern: [
+      // G string
+      [3, 0], [3, 2], [3, 4],
+      // B string
+      [2, 0], [2, 1], [2, 3],
+      // High E string
+      [1, 0], [1, 1], [1, 4],
+    ],
+    drill: {
+      direction: 'alternate',
+      startPosition: 12,
+      endPosition: 1,
+      positionIncrement: -1, // Descend the neck
+    },
   },
   {
     id: 'ex4',
-    title: 'Economy Picking 101',
-    description: 'Transition smoothly between strings.',
+    title: 'Economy Picking Threes',
+    description: 'Three-note ascending pattern across strings. Focus on the pick direction change when crossing strings.',
     difficulty: 'Intermediate',
     technique: ['Economy Picking'],
     bpm: 100,
     category: 'Speed',
-    tablature: `E|-----------------12-14-15-----|\nB|--------12-14-15--------------|\nG|12-14-15----------------------|`
-  }
+    moveable: true,
+    defaultPosition: 5,
+    pattern: [
+      // Three notes ascending on G string
+      [3, 0], [3, 2], [3, 4],
+      // Continue on B string
+      [2, 0], [2, 2], [2, 3],
+      // Finish on high E
+      [1, 0], [1, 2], [1, 3],
+    ],
+    drill: {
+      direction: 'ascending',
+      startPosition: 1,
+      endPosition: 12,
+      positionIncrement: 1,
+    },
+  },
+  {
+    id: 'ex5',
+    title: 'Open Chord Transitions: G-C-D',
+    description: 'Practice smooth transitions between the three most common open chords. Focus on minimizing finger movement and keeping time.',
+    difficulty: 'Beginner',
+    technique: ['Chord Changes', 'Rhythm'],
+    bpm: 60,
+    category: 'Accuracy',
+    moveable: false,
+    tablature: `e|--3-----0-----2-----|\nB|--0-----1-----3-----|\nG|--0-----0-----2-----|\nD|--0-----2-----0-----|\nA|--2-----3-----------|\nE|--3-----------------|`,
+  },
 ];
 export const SEED_ROADMAPS: Roadmap[] = [
   {
