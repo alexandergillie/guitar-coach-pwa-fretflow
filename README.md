@@ -111,18 +111,44 @@ npx shadcn@latest add <component>
 
 ## Deployment
 
-1. **Configure wrangler** (edit `wrangler.jsonc`):
-   - Set `name` to your worker name.
-   - Add `[vars]`, `[secrets]`, `[d1_databases]`, etc.
+### Environments
 
-2. **Deploy**:
-   ```bash
-   bun run build  # Builds frontend assets
-   wrangler deploy
-   ```
+This project supports multiple deployment environments for testing and production:
 
-3. **One-Click Deploy**:
-   [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/alexandergillie/guitar-coach-pwa-fretflow)
+- **Production**: Main deployment at `fretflow.alexandergillie.com`
+- **Staging**: Pre-production testing environment
+- **Preview**: Quick preview deployments for testing features
+
+Each environment is isolated with its own Durable Object instances and worker.
+
+### Deploy Commands
+
+```bash
+# Production deployment (default)
+bun run deploy:production
+# or
+bun run deploy
+
+# Preview deployment
+bun run deploy:preview
+
+# Staging deployment
+bun run deploy:staging
+```
+
+### Environment URLs
+
+After deployment, your workers will be available at:
+- Production: `https://fretflow.alexandergillie.com` (custom domain) or `https://guitar-coach-pwa-fretflow.alexandergillie.workers.dev`
+- Preview: `https://guitar-coach-pwa-fretflow-preview.alexandergillie.workers.dev`
+- Staging: `https://guitar-coach-pwa-fretflow-staging.alexandergillie.workers.dev`
+
+### Configuration
+
+Wrangler environments are configured in `wrangler.jsonc`:
+- Set `name` to your worker name
+- Add `[vars]`, `[secrets]`, `[d1_databases]`, etc.
+- Each environment inherits base config with custom overrides
 
 **Assets**: Frontend built to `/dist`, served as SPA via Workers Sites. API at `/api/*`.
 
@@ -136,8 +162,11 @@ npx shadcn@latest add <component>
 |--------|-------------|
 | `bun dev` | Local dev server |
 | `bun build` | Build frontend |
-| `bun preview` | Preview production build |
-| `bun deploy` | Build + wrangler deploy |
+| `bun preview` | Preview production build locally |
+| `bun deploy` | Build + deploy to production |
+| `bun deploy:production` | Build + deploy to production |
+| `bun deploy:preview` | Build + deploy to preview environment |
+| `bun deploy:staging` | Build + deploy to staging environment |
 | `bun lint` | ESLint |
 | `bun cf-typegen` | Generate Worker types |
 

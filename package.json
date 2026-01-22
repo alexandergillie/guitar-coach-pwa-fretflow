@@ -9,6 +9,9 @@
     "lint": "eslint --cache -f json --quiet .",
     "preview": "bun run build && vite preview --host 0.0.0.0 --port 4173",
     "deploy": "bun run build && wrangler deploy",
+    "deploy:preview": "bun run build && wrangler deploy --env preview",
+    "deploy:staging": "bun run build && wrangler deploy --env staging",
+    "deploy:production": "bun run build && wrangler deploy",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
