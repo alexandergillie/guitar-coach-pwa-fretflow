@@ -45,5 +45,6 @@
           "GlobalDurableObject"
         ]
       }
-    ]
+    ],
+    "send_metrics": true
 }

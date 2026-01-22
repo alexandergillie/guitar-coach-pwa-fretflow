@@ -130,6 +130,8 @@ npx shadcn@latest add <component>
 
 **Observability**: Metrics/Logs enabled. View in Cloudflare dashboard.
 
+**Previews**: Automatic preview deployments enabled via `send_metrics: true` in wrangler.jsonc. See [Cloudflare Workers Previews](https://developers.cloudflare.com/workers/configuration/previews/).
+
 ## Scripts
 
 | Script | Description |
