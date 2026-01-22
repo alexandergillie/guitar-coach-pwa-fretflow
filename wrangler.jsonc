@@ -46,14 +46,5 @@
         ]
       }
     ],
-    "env": {
-      "preview": {
-        "name": "guitar-coach-pwa-fretflow-preview",
-        "routes": []
-      },
-      "staging": {
-        "name": "guitar-coach-pwa-fretflow-staging",
-        "routes": []
-      }
-    }
+    "send_metrics": true
 }
