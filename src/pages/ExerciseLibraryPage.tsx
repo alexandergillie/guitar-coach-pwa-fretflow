@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, Music, ChevronRight } from 'lucide-react';
+import { Search, Filter, Music, ChevronRight, MoveHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 export function ExerciseLibraryPage() {
   const [search, setSearch] = useState('');
@@ -22,7 +22,7 @@ export function ExerciseLibraryPage() {
         <header className="space-y-4">
           <h1 className="text-3xl font-bold tracking-tight">Exercise Library</h1>
           <p className="text-muted-foreground max-w-2xl">
-            Explore 200+ exercises curated by master instructors. Filter by technique or difficulty to find your next challenge.
+            Explore exercises designed to build technique and speed. Filter by technique or difficulty to find your next challenge.
           </p>
         </header>
         <div className="flex flex-col sm:flex-row gap-4 items-center">
@@ -55,9 +55,17 @@ export function ExerciseLibraryPage() {
               <Card className="h-full bg-zinc-900/40 border-zinc-800 hover:border-orange-500/50 hover:bg-zinc-900/60 transition-all cursor-pointer group">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
-                    <Badge variant="outline" className="text-[10px] uppercase border-zinc-700 bg-zinc-800">
-                      {ex.category}
-                    </Badge>
+                    <div className="flex gap-1.5">
+                      <Badge variant="outline" className="text-[10px] uppercase border-zinc-700 bg-zinc-800">
+                        {ex.category}
+                      </Badge>
+                      {ex.moveable && (
+                        <Badge variant="outline" className="text-[10px] border-violet-500/30 text-violet-400 bg-violet-500/10">
+                          <MoveHorizontal className="h-2.5 w-2.5 mr-0.5" />
+                          Moveable
+                        </Badge>
+                      )}
+                    </div>
                     <span className="text-xs text-muted-foreground">{ex.bpm} BPM</span>
                   </div>
                   <CardTitle className="group-hover:text-orange-500 transition-colors">{ex.title}</CardTitle>

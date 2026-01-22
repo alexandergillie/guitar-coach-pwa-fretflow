@@ -12,7 +12,7 @@ export class ExerciseEntity extends IndexedEntity<Exercise> {
   static readonly indexName = "exercises";
   static readonly initialState: Exercise = {
     id: "", title: "", description: "", difficulty: "Beginner",
-    technique: [], tablature: "", bpm: 0, category: "Speed"
+    technique: [], bpm: 0, category: "Speed", moveable: false
   };
   static seedData = SEED_EXERCISES;
 }
