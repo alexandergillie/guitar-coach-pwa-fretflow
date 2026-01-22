@@ -330,7 +330,11 @@ export function PracticePage() {
           </div>
           <div className="w-full md:w-96 border-l border-zinc-800 p-6 flex flex-col bg-zinc-950">
             <div className="flex-shrink-0">
-              <Metronome initialBpm={exercise.bpm} />
+              <Metronome
+                initialBpm={exercise.bpm}
+                isPlaying={!!sessionStartTime && countdown === null}
+                lockBpm={true}
+              />
             </div>
             <div className="mt-auto pt-6 space-y-3 flex-shrink-0">
               {/* Drill mode position progress */}

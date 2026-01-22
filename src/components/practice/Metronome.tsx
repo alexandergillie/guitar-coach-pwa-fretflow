@@ -6,12 +6,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface MetronomeProps {
   initialBpm: number;
   onBeat?: (count: number) => void;
+  isPlaying?: boolean; // External control for auto-start/stop
+  lockBpm?: boolean; // Prevent BPM changes during drill
 }
-export function Metronome({ initialBpm, onBeat }: MetronomeProps) {
+export function Metronome({ initialBpm, onBeat, isPlaying: externalIsPlaying, lockBpm = false }: MetronomeProps) {
   const [bpm, setBpm] = useState(initialBpm);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlayingInternal, setIsPlayingInternal] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [beat, setBeat] = useState(0);
+
+  // Use external control if provided, otherwise use internal state
+  const isPlaying = externalIsPlaying !== undefined ? externalIsPlaying : isPlayingInternal;
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<number | null>(null);
   const nextNoteTimeRef = useRef(0);
@@ -42,18 +47,39 @@ export function Metronome({ initialBpm, onBeat }: MetronomeProps) {
     timerRef.current = window.setTimeout(scheduler, lookahead);
   }, [bpm, beat, playClick, onBeat]);
   const togglePlay = () => {
-    if (!isPlaying) {
+    if (externalIsPlaying !== undefined) return; // Disabled when externally controlled
+
+    if (!isPlayingInternal) {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       nextNoteTimeRef.current = audioContextRef.current.currentTime;
-      setIsPlaying(true);
+      setIsPlayingInternal(true);
       scheduler();
     } else {
-      setIsPlaying(false);
+      setIsPlayingInternal(false);
       if (timerRef.current) clearTimeout(timerRef.current);
     }
   };
+
+  // Handle external isPlaying control
+  useEffect(() => {
+    if (externalIsPlaying !== undefined) {
+      if (externalIsPlaying && !isPlayingInternal) {
+        // Start metronome
+        if (!audioContextRef.current) {
+          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        }
+        nextNoteTimeRef.current = audioContextRef.current.currentTime;
+        setIsPlayingInternal(true);
+        scheduler();
+      } else if (!externalIsPlaying && isPlayingInternal) {
+        // Stop metronome
+        setIsPlayingInternal(false);
+        if (timerRef.current) clearTimeout(timerRef.current);
+      }
+    }
+  }, [externalIsPlaying]);
   useEffect(() => {
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, []);
@@ -77,15 +103,22 @@ export function Metronome({ initialBpm, onBeat }: MetronomeProps) {
         </AnimatePresence>
         <div className="text-5xl font-black text-foreground">{bpm}</div>
       </div>
-      <Slider 
-        value={[bpm]} 
-        onValueChange={(v) => setBpm(v[0])} 
-        min={40} max={240} step={1} 
+      <Slider
+        value={[bpm]}
+        onValueChange={(v) => setBpm(v[0])}
+        min={40} max={240} step={1}
         className="w-full"
+        disabled={lockBpm}
       />
-      <Button onClick={togglePlay} className={`w-full h-14 text-lg font-bold ${isPlaying ? 'bg-zinc-800' : 'btn-gradient'}`}>
-        {isPlaying ? <><Pause className="mr-2" /> Stop</> : <><Play className="mr-2" /> Start</>}
-      </Button>
+      {externalIsPlaying === undefined ? (
+        <Button onClick={togglePlay} className={`w-full h-14 text-lg font-bold ${isPlaying ? 'bg-zinc-800' : 'btn-gradient'}`}>
+          {isPlaying ? <><Pause className="mr-2" /> Stop</> : <><Play className="mr-2" /> Start</>}
+        </Button>
+      ) : (
+        <div className="w-full text-center text-sm text-muted-foreground">
+          {isPlaying ? '🎵 Synced with drill' : 'Start drill to begin'}
+        </div>
+      )}
     </div>
   );
 }
