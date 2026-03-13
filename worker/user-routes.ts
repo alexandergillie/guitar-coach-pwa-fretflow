@@ -3,6 +3,7 @@ import type { Env } from './core-utils';
 import { UserEntity, ExerciseEntity, RoadmapEntity, PracticeSessionEntity } from "./entities";
 import { ok, bad, notFound } from './core-utils';
 import { SkillProfile, PracticeSession } from "@shared/types";
+import { SEED_ROADMAPS } from "@shared/mock-data";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // EXERCISES
   app.get('/api/exercises', async (c) => {
@@ -56,6 +57,13 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.get('/api/roadmaps', async (c) => {
     await RoadmapEntity.ensureSeed(c.env);
     const page = await RoadmapEntity.list(c.env);
+    // Re-seed if stored data is the old format (no `weeks` field)
+    if (page.items.length > 0 && !('weeks' in page.items[0])) {
+      await RoadmapEntity.deleteMany(c.env, page.items.map(r => r.id));
+      await Promise.all(SEED_ROADMAPS.map(s => RoadmapEntity.create(c.env, s)));
+      const fresh = await RoadmapEntity.list(c.env);
+      return ok(c, fresh.items);
+    }
     return ok(c, page.items);
   });
 }
