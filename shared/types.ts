@@ -130,14 +130,37 @@ export interface PracticeSession {
    */
   positionsCompleted?: number[];
 }
+export interface RoadmapWeekExercise {
+  name: string;
+  description: string;
+  targetBpm?: string;
+  durationMinutes: number;
+  exerciseId?: string;
+}
+
+export interface RoadmapWeek {
+  weekNumber: number;
+  title: string;
+  focus: string;
+  theoryBite: string;
+  targetBpmRange: string;
+  exercises: RoadmapWeekExercise[];
+  milestone: string;
+  theoryHomework?: string;
+}
+
 export interface Roadmap {
   id: string;
   title: string;
   description: string;
-  steps: {
-    exerciseId: string;
-    targetBpm: number;
-  }[];
+  approach: string;
+  durationWeeks: number;
+  targetTechniques: string[];
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  timePerSessionMinutes: number;
+  prerequisites?: string[];
+  theoryFocus: boolean;
+  weeks: RoadmapWeek[];
 }
 export interface Chat {
   id: string;
