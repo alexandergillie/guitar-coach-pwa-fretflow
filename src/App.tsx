@@ -89,7 +89,7 @@ function SignInScreen() {
         <h1 className="text-3xl font-black tracking-tight text-white">FretFlow</h1>
         <p className="text-zinc-400">Sign in to start practicing</p>
       </div>
-      <SignIn routing="hash" appearance={{
+      <SignIn afterSignInUrl="/" afterSignUpUrl="/" appearance={{
         variables: { colorPrimary: '#f97316', colorBackground: '#09090b', colorInputBackground: '#18181b', colorText: '#fafafa' },
         elements: { card: 'bg-zinc-900 border border-zinc-800 shadow-xl', formButtonPrimary: 'bg-orange-500 hover:bg-orange-600' }
       }} />
@@ -128,7 +128,7 @@ export default function App() {
   }
 
   return (
-    <ClerkProvider publishableKey={CLERK_KEY}>
+    <ClerkProvider publishableKey={CLERK_KEY} afterSignInUrl="/" afterSignUpUrl="/" afterSignOutUrl="/">
       <AppInner />
     </ClerkProvider>
   );
