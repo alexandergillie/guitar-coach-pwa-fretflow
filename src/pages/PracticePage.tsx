@@ -214,7 +214,6 @@ export function PracticePage() {
     const calculatedAccuracy = calculateAccuracy(expectedNotes);
 
     sessionMutation.mutate({
-      userId: 'u1',
       exerciseId: id!,
       duration,
       accuracy: calculatedAccuracy,

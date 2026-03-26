@@ -11,6 +11,7 @@ export interface User {
   lastPracticeAt?: number;
   activeRoadmapId?: string;
   roadmapProgress?: Record<string, number>; // roadmapId -> weeksCompleted
+  goals?: string[]; // selected focus areas from assessment
 }
 export interface SkillProfile {
   alternatePicking: number;
