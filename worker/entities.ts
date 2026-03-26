@@ -19,7 +19,11 @@ export class ExerciseEntity extends IndexedEntity<Exercise> {
 export class RoadmapEntity extends IndexedEntity<Roadmap> {
   static readonly entityName = "roadmap";
   static readonly indexName = "roadmaps";
-  static readonly initialState: Roadmap = { id: "", title: "", description: "", steps: [] };
+  static readonly initialState: Roadmap = {
+    id: "", title: "", description: "", approach: "",
+    durationWeeks: 0, targetTechniques: [], difficulty: "Beginner",
+    timePerSessionMinutes: 0, theoryFocus: false, weeks: [],
+  };
   static seedData = SEED_ROADMAPS;
 }
 export class PracticeSessionEntity extends IndexedEntity<PracticeSession> {
