@@ -74,6 +74,126 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* ── Theme: Studio ─────────────────────────────────────────────────────────
+     Inspired by: Guitar Pro, Logic Pro X, Ableton Live
+     Dark navy backgrounds with electric-teal accents. Clean, precise, pro-DAW.
+  ── */
+  [data-theme="studio"] {
+    --background: 216 42% 7%;
+    --foreground: 210 22% 82%;
+    --primary: 165 100% 39%;
+    --primary-foreground: 216 42% 5%;
+    --muted: 216 32% 13%;
+    --muted-foreground: 215 18% 54%;
+    --border: 216 35% 17%;
+    --ring: 165 100% 39%;
+    --card: 216 40% 10%;
+    --card-foreground: 210 22% 82%;
+    --popover: 216 40% 10%;
+    --popover-foreground: 210 22% 82%;
+    --secondary: 216 32% 13%;
+    --secondary-foreground: 210 22% 82%;
+    --accent: 165 60% 18%;
+    --accent-foreground: 165 100% 70%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 216 35% 17%;
+    --radius: 0.25rem;
+    --chart-1: 165 100% 39%;
+    --chart-2: 194 100% 48%;
+    --chart-3: 142 68% 44%;
+    --chart-4: 213 80% 58%;
+    --chart-5: 280 68% 62%;
+    --sidebar-background: 220 48% 5%;
+    --sidebar-foreground: 210 18% 74%;
+    --sidebar-primary: 165 100% 39%;
+    --sidebar-primary-foreground: 220 48% 5%;
+    --sidebar-accent: 216 38% 12%;
+    --sidebar-accent-foreground: 210 18% 80%;
+    --sidebar-border: 216 38% 13%;
+    --sidebar-ring: 165 100% 39%;
+  }
+
+  /* ── Theme: Acoustic ───────────────────────────────────────────────────────
+     Inspired by: Fender Play, Simply Guitar, acoustic music studios
+     Warm cream & parchment with amber-rust accents. Cozy, inviting, analogue.
+  ── */
+  [data-theme="acoustic"] {
+    --background: 38 80% 95%;
+    --foreground: 20 38% 11%;
+    --primary: 22 82% 43%;
+    --primary-foreground: 38 80% 97%;
+    --muted: 34 46% 90%;
+    --muted-foreground: 24 28% 42%;
+    --border: 28 36% 74%;
+    --ring: 22 82% 43%;
+    --card: 40 70% 97%;
+    --card-foreground: 20 38% 11%;
+    --popover: 40 70% 97%;
+    --popover-foreground: 20 38% 11%;
+    --secondary: 34 46% 90%;
+    --secondary-foreground: 20 38% 11%;
+    --accent: 22 82% 90%;
+    --accent-foreground: 22 82% 28%;
+    --destructive: 0 84% 58%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 30 34% 84%;
+    --radius: 0.75rem;
+    --chart-1: 22 82% 43%;
+    --chart-2: 35 78% 52%;
+    --chart-3: 158 48% 38%;
+    --chart-4: 200 48% 42%;
+    --chart-5: 5 68% 48%;
+    --sidebar-background: 32 52% 87%;
+    --sidebar-foreground: 20 32% 18%;
+    --sidebar-primary: 22 82% 43%;
+    --sidebar-primary-foreground: 38 80% 97%;
+    --sidebar-accent: 32 44% 80%;
+    --sidebar-accent-foreground: 20 32% 18%;
+    --sidebar-border: 30 34% 77%;
+    --sidebar-ring: 22 82% 43%;
+  }
+
+  /* ── Theme: Neon ───────────────────────────────────────────────────────────
+     Inspired by: Rocksmith, Guitar Hero, concert stages, arcade music games
+     Deep cosmic purple with electric-magenta and cyan neon accents. High energy.
+  ── */
+  [data-theme="neon"] {
+    --background: 270 92% 4%;
+    --foreground: 270 44% 94%;
+    --primary: 291 95% 63%;
+    --primary-foreground: 270 92% 4%;
+    --muted: 270 68% 11%;
+    --muted-foreground: 270 26% 58%;
+    --border: 278 72% 18%;
+    --ring: 291 95% 63%;
+    --card: 270 88% 7%;
+    --card-foreground: 270 44% 94%;
+    --popover: 270 88% 7%;
+    --popover-foreground: 270 44% 94%;
+    --secondary: 270 68% 11%;
+    --secondary-foreground: 270 44% 94%;
+    --accent: 194 100% 52%;
+    --accent-foreground: 270 92% 4%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 278 72% 14%;
+    --radius: 0.375rem;
+    --chart-1: 291 95% 63%;
+    --chart-2: 194 100% 52%;
+    --chart-3: 130 100% 54%;
+    --chart-4: 60 100% 58%;
+    --chart-5: 220 100% 68%;
+    --sidebar-background: 270 100% 3%;
+    --sidebar-foreground: 270 38% 84%;
+    --sidebar-primary: 291 95% 63%;
+    --sidebar-primary-foreground: 270 100% 3%;
+    --sidebar-accent: 270 68% 9%;
+    --sidebar-accent-foreground: 270 38% 84%;
+    --sidebar-border: 278 72% 14%;
+    --sidebar-ring: 291 95% 63%;
+  }
   
   * {
     @apply border-border;
@@ -102,22 +222,174 @@
     @apply btn text-white shadow-primary hover:shadow-glow hover:scale-105 active:scale-95;
     background: linear-gradient(135deg, #F38020 0%, #E55A1B 100%);
   }
-  
+
+  [data-theme="studio"] .btn-gradient {
+    background: linear-gradient(135deg, #00c897 0%, #009e78 100%);
+    box-shadow: 0 0 20px -5px rgba(0, 200, 151, 0.45);
+  }
+
+  [data-theme="studio"] .btn-gradient:hover {
+    box-shadow: 0 0 32px -5px rgba(0, 200, 151, 0.65);
+  }
+
+  [data-theme="acoustic"] .btn-gradient {
+    background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+    box-shadow: 0 0 20px -5px rgba(217, 119, 6, 0.35);
+  }
+
+  [data-theme="neon"] .btn-gradient {
+    background: linear-gradient(135deg, #e040fb 0%, #aa00ff 100%);
+    box-shadow: 0 0 20px -5px rgba(224, 64, 251, 0.55);
+  }
+
+  [data-theme="neon"] .btn-gradient:hover {
+    box-shadow: 0 0 40px -5px rgba(224, 64, 251, 0.75);
+  }
+
   /* Gradient System */
   .bg-gradient-primary {
     background: linear-gradient(135deg, #F38020 0%, #E55A1B 50%, #D14615 100%);
   }
-  
+
   .bg-gradient-rainbow {
     background: linear-gradient(135deg, #F38020 0%, #E55A1B 25%, #D14615 50%, #ff6b35 100%);
   }
-  
+
   /* Text System */
   .text-gradient {
     background: linear-gradient(90deg, #F38020 0%, #E55A1B 50%, #D14615 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  [data-theme="studio"] .text-gradient {
+    background: linear-gradient(90deg, #00c897 0%, #00a8ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  [data-theme="neon"] .text-gradient {
+    background: linear-gradient(90deg, #e040fb 0%, #4cc9f0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ── Hardcoded color overrides per theme ───────────────────────────────────
+     These override the zinc-900/zinc-800 utility classes used directly in
+     page components that were written before the theme system existed.
+  ── */
+
+  /* Studio: replace zinc darks with navy equivalents */
+  [data-theme="studio"] .bg-zinc-900\/50 {
+    background-color: rgb(10 14 26 / 0.6);
+  }
+  [data-theme="studio"] .bg-zinc-900 {
+    background-color: rgb(7 11 21);
+  }
+  [data-theme="studio"] .bg-zinc-800\/50 {
+    background-color: rgb(15 24 42 / 0.6);
+  }
+  [data-theme="studio"] .bg-zinc-800 {
+    background-color: rgb(15 24 42);
+  }
+  [data-theme="studio"] .border-zinc-800 {
+    border-color: rgb(30 45 70);
+  }
+  [data-theme="studio"] .text-orange-500 {
+    color: rgb(0 200 151);
+  }
+  [data-theme="studio"] .bg-orange-500\/10 {
+    background-color: rgb(0 200 151 / 0.1);
+  }
+  [data-theme="studio"] .border-orange-500\/20 {
+    border-color: rgb(0 200 151 / 0.2);
+  }
+  [data-theme="studio"] .shadow-glow {
+    box-shadow: 0 0 20px -5px rgba(0, 200, 151, 0.35);
+  }
+  [data-theme="studio"] .hover\:shadow-glow-lg:hover {
+    box-shadow: 0 0 40px -10px rgba(0, 200, 151, 0.45);
+  }
+
+  /* Acoustic: replace zinc darks with warm parchment tones */
+  [data-theme="acoustic"] .bg-zinc-900\/50 {
+    background-color: rgb(240 220 190 / 0.55);
+  }
+  [data-theme="acoustic"] .bg-zinc-900 {
+    background-color: rgb(232 210 175);
+  }
+  [data-theme="acoustic"] .bg-zinc-800\/50 {
+    background-color: rgb(228 205 170 / 0.6);
+  }
+  [data-theme="acoustic"] .bg-zinc-800 {
+    background-color: rgb(218 193 158);
+  }
+  [data-theme="acoustic"] .border-zinc-800 {
+    border-color: rgb(196 165 120);
+  }
+  [data-theme="acoustic"] .border-t.border-zinc-800 {
+    border-color: rgb(196 165 120);
+  }
+  [data-theme="acoustic"] .shadow-glow {
+    box-shadow: 0 4px 20px -4px rgba(194, 65, 12, 0.2);
+  }
+  [data-theme="acoustic"] .hover\:shadow-glow-lg:hover {
+    box-shadow: 0 4px 32px -4px rgba(194, 65, 12, 0.3);
+  }
+
+  /* Neon: replace zinc darks with deep purple equivalents */
+  [data-theme="neon"] .bg-zinc-900\/50 {
+    background-color: rgb(16 0 32 / 0.7);
+  }
+  [data-theme="neon"] .bg-zinc-900 {
+    background-color: rgb(12 0 24);
+  }
+  [data-theme="neon"] .bg-zinc-800\/50 {
+    background-color: rgb(28 0 52 / 0.6);
+  }
+  [data-theme="neon"] .bg-zinc-800 {
+    background-color: rgb(28 0 52);
+  }
+  [data-theme="neon"] .border-zinc-800 {
+    border-color: rgb(60 0 100);
+  }
+  [data-theme="neon"] .text-orange-500 {
+    color: rgb(224 64 251);
+  }
+  [data-theme="neon"] .bg-orange-500\/10 {
+    background-color: rgb(224 64 251 / 0.12);
+  }
+  [data-theme="neon"] .border-orange-500\/20 {
+    border-color: rgb(224 64 251 / 0.25);
+  }
+  [data-theme="neon"] .shadow-glow {
+    box-shadow: 0 0 20px -5px rgba(224, 64, 251, 0.4);
+  }
+  [data-theme="neon"] .hover\:shadow-glow-lg:hover {
+    box-shadow: 0 0 40px -10px rgba(224, 64, 251, 0.55);
+  }
+  /* Neon: ambient glow on body background */
+  [data-theme="neon"] body {
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(224, 64, 251, 0.07) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(76, 201, 240, 0.06) 0%, transparent 50%);
+  }
+
+  /* Studio: subtle grid texture */
+  [data-theme="studio"] body {
+    background-image:
+      linear-gradient(rgba(0, 200, 151, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 200, 151, 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* Acoustic: warm paper texture hint */
+  [data-theme="acoustic"] body {
+    background-image:
+      radial-gradient(ellipse at 70% 30%, rgba(217, 119, 6, 0.06) 0%, transparent 60%);
   }
   
   .text-pretty {
