@@ -3,17 +3,20 @@ import { useLocation, useParams, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SEED_EXERCISES } from '@shared/mock-data';
 import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell, ReferenceLine } from 'recharts';
-import { Trophy, Clock, Zap, CheckCircle2, RotateCcw, Home, Star } from 'lucide-react';
-import { PracticeSession } from '@shared/types';
+import { Trophy, Clock, Zap, CheckCircle2, RotateCcw, Home, Star, AlertCircle } from 'lucide-react';
+import type { PracticeSession, Exercise } from '@shared/types';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 export function SessionAnalysisPage() {
   const { id } = useParams();
   const location = useLocation();
-  const exercise = SEED_EXERCISES.find(e => e.id === id);
   const session = (location.state as { session: PracticeSession })?.session;
+  const { data: exercises = [] } = useQuery<Exercise[]>({
+    queryKey: ['exercises'],
+    queryFn: () => api('/api/exercises'),
+  });
+  const exercise = exercises.find(e => e.id === id);
   const { data: allSessions = [] } = useQuery<PracticeSession[]>({ 
     queryKey: ['sessions'], 
     queryFn: () => api('/api/sessions') 
@@ -28,7 +31,23 @@ export function SessionAnalysisPage() {
     { name: 'Exercise Goal', bpm: exercise?.bpm || 0, color: '#27272a' },
     { name: 'Personal Best', bpm: personalBest, color: '#71717a' },
   ];
-  if (!exercise) return <div>Exercise not found</div>;
+  if (!session) return (
+    <AppLayout container>
+      <div className="max-w-md mx-auto text-center py-20 space-y-4">
+        <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground" />
+        <h2 className="text-xl font-semibold">No session data</h2>
+        <p className="text-muted-foreground">Complete a practice session to see your results here.</p>
+        <Button asChild className="btn-gradient">
+          <Link to="/library">Browse Exercises</Link>
+        </Button>
+      </div>
+    </AppLayout>
+  );
+  if (!exercise) return (
+    <AppLayout container>
+      <div className="text-center py-20 text-muted-foreground">Exercise not found.</div>
+    </AppLayout>
+  );
   const isNewRecord = session?.achievedBpm && session.achievedBpm >= personalBest;
   return (
     <AppLayout container>

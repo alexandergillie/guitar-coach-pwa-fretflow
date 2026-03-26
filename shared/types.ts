@@ -9,6 +9,8 @@ export interface User {
   skillProfile?: SkillProfile;
   streak: number;
   lastPracticeAt?: number;
+  activeRoadmapId?: string;
+  roadmapProgress?: Record<string, number>; // roadmapId -> weeksCompleted
 }
 export interface SkillProfile {
   alternatePicking: number;
@@ -161,15 +163,4 @@ export interface Roadmap {
   prerequisites?: string[];
   theoryFocus: boolean;
   weeks: RoadmapWeek[];
-}
-export interface Chat {
-  id: string;
-  title: string;
-}
-export interface ChatMessage {
-  id: string;
-  chatId: string;
-  userId: string;
-  text: string;
-  ts: number;
 }

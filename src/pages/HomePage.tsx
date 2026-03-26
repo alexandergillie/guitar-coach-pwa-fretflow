@@ -27,7 +27,12 @@ export function HomePage() {
     const masteredIds = new Set(sessions.filter(s => s.accuracy > 95).map(s => s.exerciseId));
     return exercises.find(e => !masteredIds.has(e.id)) || exercises[0];
   }, [exercises, sessions]);
-  const masteryLevel = Math.floor((sessions.length * 5 + (user?.streak || 0) * 10) / 100);
+  const masteryLevel = React.useMemo(() => {
+    if (!user?.skillProfile) return sessions.length > 0 ? 1 : 0;
+    const skills = Object.values(user.skillProfile);
+    const avg = skills.reduce((a, b) => a + b, 0) / skills.length;
+    return Math.max(1, Math.floor(avg / 10));
+  }, [user?.skillProfile, sessions.length]);
   return (
     <AppLayout container>
       <div className="space-y-8 animate-fade-in">

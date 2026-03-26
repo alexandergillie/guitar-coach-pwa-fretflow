@@ -66,4 +66,27 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
     return ok(c, page.items);
   });
+
+  // Start a roadmap (sets activeRoadmapId, initializes progress to 0)
+  app.post('/api/roadmaps/:id/start', async (c) => {
+    const roadmapId = c.req.param('id');
+    await UserEntity.ensureSeed(c.env);
+    const user = new UserEntity(c.env, 'u1');
+    const userData = await user.getState();
+    const progress = { ...(userData.roadmapProgress || {}), [roadmapId]: 0 };
+    await user.patch({ activeRoadmapId: roadmapId, roadmapProgress: progress });
+    return ok(c, await user.getState());
+  });
+
+  // Complete the current week in a roadmap (increments weeksCompleted)
+  app.post('/api/roadmaps/:id/week/complete', async (c) => {
+    const roadmapId = c.req.param('id');
+    await UserEntity.ensureSeed(c.env);
+    const user = new UserEntity(c.env, 'u1');
+    const userData = await user.getState();
+    const current = userData.roadmapProgress?.[roadmapId] ?? 0;
+    const progress = { ...(userData.roadmapProgress || {}), [roadmapId]: current + 1 };
+    await user.patch({ roadmapProgress: progress });
+    return ok(c, await user.getState());
+  });
 }

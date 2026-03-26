@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { SEED_EXERCISES } from '@shared/mock-data';
+import { useQuery } from '@tanstack/react-query';
+import type { Exercise } from '@shared/types';
 import { Button } from '@/components/ui/button';
 import { Visualizer } from '@/components/practice/Visualizer';
 import { Metronome } from '@/components/practice/Metronome';
@@ -20,7 +21,11 @@ export function PracticePage() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const exercise = SEED_EXERCISES.find(e => e.id === id);
+  const { data: exercises = [], isLoading: exercisesLoading } = useQuery<Exercise[]>({
+    queryKey: ['exercises'],
+    queryFn: () => api('/api/exercises'),
+  });
+  const exercise = exercises.find(e => e.id === id);
   
   // Get position and drill mode from URL params
   const initialPosition = parseInt(searchParams.get('position') || String(exercise?.defaultPosition || 1), 10);
@@ -99,15 +104,7 @@ export function PracticePage() {
       pattern = getPatternAtPosition(exercise.pattern, exercise.drill, currentPositionIndex);
     }
     
-    const tab = generateTablature(pattern, currentPosition);
-    console.log('[PracticePage] Tab generation:', {
-      isDrillMode,
-      currentPositionIndex,
-      currentPosition,
-      patternFirst4: pattern.slice(0, 4),
-      tabPreview: tab.split('\n')[0]
-    });
-    return tab;
+    return generateTablature(pattern, currentPosition);
   }, [exercise, currentPosition, currentPositionIndex, isDrillMode]);
   const { analyser, isActive, startEngine, stopEngine, error, audioContext } = useAudioEngine();
   const { pitch, note, bpm, detectedNotes, calculateAccuracy, reset: resetAnalysis } = useAudioAnalysis(
@@ -216,17 +213,6 @@ export function PracticePage() {
     // Calculate real accuracy using tablature parser
     const calculatedAccuracy = calculateAccuracy(expectedNotes);
 
-    console.log('[Practice Session]', {
-      duration,
-      detectedNotes: detectedNotes.length,
-      expectedNotes: expectedNotes.length,
-      accuracy: calculatedAccuracy,
-      bpm,
-      position: currentPosition,
-      drillMode: isDrillMode,
-      positionsCompleted: isDrillMode ? [...positionsCompleted, currentPosition] : undefined
-    });
-
     sessionMutation.mutate({
       userId: 'u1',
       exerciseId: id!,
@@ -238,7 +224,20 @@ export function PracticePage() {
       positionsCompleted: isDrillMode ? [...positionsCompleted, currentPosition] : undefined
     });
   };
-  if (!exercise) return <div>Exercise not found</div>;
+  if (exercisesLoading) return (
+    <AppLayout>
+      <div className="min-h-[calc(100vh-64px)] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    </AppLayout>
+  );
+  if (!exercise) return (
+    <AppLayout>
+      <div className="min-h-[calc(100vh-64px)] flex items-center justify-center text-muted-foreground">
+        Exercise not found.
+      </div>
+    </AppLayout>
+  );
   return (
     <AppLayout>
       <div className="min-h-[calc(100vh-64px)] bg-black flex flex-col">

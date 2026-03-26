@@ -1,4 +1,4 @@
-import type { User, Chat, ChatMessage, Exercise, Roadmap, SkillProfile, RoadmapWeek } from './types';
+import type { User, Exercise, Roadmap, SkillProfile, RoadmapWeek } from './types';
 export const MOCK_USERS: User[] = [
   { 
     id: 'u1', 
@@ -15,12 +15,6 @@ export const MOCK_USERS: User[] = [
       theory: 50
     }
   }
-];
-export const MOCK_CHATS: Chat[] = [
-  { id: 'c1', title: 'General' },
-];
-export const MOCK_CHAT_MESSAGES: ChatMessage[] = [
-  { id: 'm1', chatId: 'c1', userId: 'u1', text: 'Shred on!', ts: Date.now() },
 ];
 export const DEFAULT_SKILL_PROFILE: SkillProfile = {
   alternatePicking: 0,
