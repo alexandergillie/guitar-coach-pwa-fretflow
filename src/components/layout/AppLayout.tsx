@@ -1,7 +1,7 @@
 import React from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Toaster } from "@/components/ui/sonner";
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -21,7 +21,7 @@ export function AppLayout({ children, container = false, className, contentClass
               <div className="h-4 w-[1px] bg-border mx-2" />
               <h2 className="text-sm font-semibold tracking-tight">FretFlow</h2>
             </div>
-            <ThemeToggle className="static" />
+            <ThemeSwitcher />
           </div>
         </header>
         <main className="flex-1 overflow-auto">
