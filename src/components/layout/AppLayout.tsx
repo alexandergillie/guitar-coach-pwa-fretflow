@@ -7,6 +7,19 @@ import { Toaster } from '@/components/ui/sonner';
 import { useUXLayout } from '@/hooks/use-ux-layout';
 import { AppLayoutFlow } from '@/components/layout/AppLayoutFlow';
 import { AppLayoutCockpit } from '@/components/layout/AppLayoutCockpit';
+import { useOnlineStatus } from '@/hooks/use-online-status';
+import { WifiOff } from 'lucide-react';
+
+function OfflineBanner() {
+  const isOnline = useOnlineStatus();
+  if (isOnline) return null;
+  return (
+    <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-yellow-500/10 border-b border-yellow-500/30 px-4 py-2 text-yellow-400 text-sm font-medium">
+      <WifiOff className="h-4 w-4 flex-shrink-0" />
+      You're offline — changes won't sync until you reconnect.
+    </div>
+  );
+}
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -20,17 +33,23 @@ export function AppLayout({ children, container = false, className, contentClass
 
   if (layout === 'flow') {
     return (
-      <AppLayoutFlow container={container} contentClassName={contentClassName}>
-        {children}
-      </AppLayoutFlow>
+      <>
+        <OfflineBanner />
+        <AppLayoutFlow container={container} contentClassName={contentClassName}>
+          {children}
+        </AppLayoutFlow>
+      </>
     );
   }
 
   if (layout === 'cockpit') {
     return (
-      <AppLayoutCockpit container={container} contentClassName={contentClassName}>
-        {children}
-      </AppLayoutCockpit>
+      <>
+        <OfflineBanner />
+        <AppLayoutCockpit container={container} contentClassName={contentClassName}>
+          {children}
+        </AppLayoutCockpit>
+      </>
     );
   }
 
@@ -39,6 +58,7 @@ export function AppLayout({ children, container = false, className, contentClass
     <SidebarProvider defaultOpen={true}>
       <AppSidebar />
       <SidebarInset className={className}>
+        <OfflineBanner />
         <header className="sticky top-0 z-30 flex h-16 items-center border-b bg-background/95 backdrop-blur">
           <div className="flex w-full items-center justify-between px-4">
             <div className="flex items-center gap-2">

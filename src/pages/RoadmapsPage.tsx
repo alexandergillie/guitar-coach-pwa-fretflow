@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
-import type { Roadmap, RoadmapWeek } from '@shared/types';
+import type { Roadmap, RoadmapWeek, User } from '@shared/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,10 @@ import {
   Lightbulb,
   CalendarDays,
   Dumbbell,
+  Play,
+  CheckCircle2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   Beginner: 'bg-green-500/10 text-green-400 border-green-500/20',
@@ -27,21 +30,50 @@ const DIFFICULTY_COLORS: Record<string, string> = {
   Advanced: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
 
-function WeekCard({ week }: { week: RoadmapWeek }) {
-  const [expanded, setExpanded] = useState(false);
+function WeekCard({
+  week,
+  isActive,
+  isCompleted,
+  isCurrent,
+  onCompleteWeek,
+  isPending,
+}: {
+  week: RoadmapWeek;
+  isActive: boolean;
+  isCompleted: boolean;
+  isCurrent: boolean;
+  onCompleteWeek: () => void;
+  isPending: boolean;
+}) {
+  const [expanded, setExpanded] = useState(isCurrent);
 
   return (
-    <div className="border border-zinc-800 rounded-xl overflow-hidden">
+    <div className={`border rounded-xl overflow-hidden transition-colors ${
+      isCompleted ? 'border-green-500/30 bg-green-500/5' :
+      isCurrent ? 'border-orange-500/40 bg-orange-500/5' :
+      'border-zinc-800'
+    }`}>
       <button
-        className="w-full flex items-center gap-4 p-4 text-left hover:bg-zinc-800/50 transition-colors"
+        className="w-full flex items-center gap-4 p-4 text-left hover:bg-zinc-800/30 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 text-xs font-bold">
-          {week.weekNumber}
+        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border ${
+          isCompleted
+            ? 'bg-green-500/20 border-green-500/40 text-green-400'
+            : isCurrent
+              ? 'bg-orange-500/20 border-orange-500/40 text-orange-400'
+              : 'bg-zinc-800 border-zinc-700 text-zinc-400'
+        }`}>
+          {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : week.weekNumber}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-sm">Week {week.weekNumber}: {week.title}</span>
+            {isCurrent && (
+              <Badge variant="outline" className="text-[10px] px-2 py-0 border-orange-500/40 text-orange-400">
+                Current
+              </Badge>
+            )}
             <Badge variant="outline" className="text-[10px] px-2 py-0 border-zinc-700 text-zinc-400">
               <Clock className="w-3 h-3 mr-1" />{week.targetBpmRange}
             </Badge>
@@ -114,14 +146,47 @@ function WeekCard({ week }: { week: RoadmapWeek }) {
               <p className="text-xs text-zinc-300 leading-relaxed">{week.milestone}</p>
             </div>
           </div>
+
+          {/* Complete week button */}
+          {isActive && isCurrent && (
+            <Button
+              size="sm"
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              onClick={(e) => { e.stopPropagation(); onCompleteWeek(); }}
+              disabled={isPending}
+            >
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Mark Week {week.weekNumber} Complete
+            </Button>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-function RoadmapCard({ roadmap }: { roadmap: Roadmap }) {
+function RoadmapCard({
+  roadmap,
+  user,
+  onStart,
+  onCompleteWeek,
+  isStartPending,
+  isCompletePending,
+}: {
+  roadmap: Roadmap;
+  user?: User;
+  onStart: (id: string) => void;
+  onCompleteWeek: (id: string) => void;
+  isStartPending: boolean;
+  isCompletePending: boolean;
+}) {
   const [expanded, setExpanded] = useState(false);
+
+  const isActive = user?.activeRoadmapId === roadmap.id;
+  const weeksCompleted = user?.roadmapProgress?.[roadmap.id] ?? 0;
+  const progressPct = (weeksCompleted / roadmap.durationWeeks) * 100;
+  const isFinished = weeksCompleted >= roadmap.durationWeeks;
+  const currentWeekNumber = weeksCompleted + 1;
 
   const totalExercises = roadmap.weeks.reduce((s, w) => s + w.exercises.length, 0);
   const totalMinutes = roadmap.weeks.reduce(
@@ -130,15 +195,27 @@ function RoadmapCard({ roadmap }: { roadmap: Roadmap }) {
   );
 
   return (
-    <Card className="bg-zinc-900/40 border-zinc-800 overflow-hidden">
+    <Card className={`bg-zinc-900/40 border-zinc-800 overflow-hidden transition-colors ${isActive ? 'border-orange-500/40' : ''}`}>
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
-              <Map className="w-5 h-5 text-orange-400" />
+            <div className={`p-2 rounded-lg border ${isActive ? 'bg-orange-500/20 border-orange-500/40' : 'bg-orange-500/10 border-orange-500/20'}`}>
+              <Map className={`w-5 h-5 ${isActive ? 'text-orange-400' : 'text-orange-400'}`} />
             </div>
             <div>
-              <CardTitle className="text-lg">{roadmap.title}</CardTitle>
+              <div className="flex items-center gap-2 flex-wrap">
+                <CardTitle className="text-lg">{roadmap.title}</CardTitle>
+                {isActive && !isFinished && (
+                  <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 hover:bg-orange-500/20">
+                    Active
+                  </Badge>
+                )}
+                {isFinished && (
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/20">
+                    <CheckCircle2 className="w-3 h-3 mr-1" /> Completed
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground mt-0.5">{roadmap.description}</p>
             </div>
           </div>
@@ -207,10 +284,23 @@ function RoadmapCard({ roadmap }: { roadmap: Roadmap }) {
         <div>
           <div className="flex justify-between text-xs mb-1.5">
             <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium text-zinc-400">0 / {roadmap.durationWeeks} weeks</span>
+            <span className="font-medium text-zinc-400">{weeksCompleted} / {roadmap.durationWeeks} weeks</span>
           </div>
-          <Progress value={0} className="h-1.5" />
+          <Progress value={progressPct} className="h-1.5" />
         </div>
+
+        {/* Action button */}
+        {!isActive && !isFinished && (
+          <Button
+            className="w-full btn-gradient"
+            size="sm"
+            onClick={() => onStart(roadmap.id)}
+            disabled={isStartPending}
+          >
+            <Play className="w-4 h-4 mr-2" />
+            Start Roadmap
+          </Button>
+        )}
 
         {/* Weekly breakdown toggle */}
         <Button
@@ -232,9 +322,21 @@ function RoadmapCard({ roadmap }: { roadmap: Roadmap }) {
 
         {expanded && (
           <div className="space-y-2 pt-1">
-            {roadmap.weeks.map((week) => (
-              <WeekCard key={week.weekNumber} week={week} />
-            ))}
+            {roadmap.weeks.map((week) => {
+              const done = week.weekNumber <= weeksCompleted;
+              const current = isActive && !isFinished && week.weekNumber === currentWeekNumber;
+              return (
+                <WeekCard
+                  key={week.weekNumber}
+                  week={week}
+                  isActive={isActive}
+                  isCompleted={done}
+                  isCurrent={current}
+                  onCompleteWeek={() => onCompleteWeek(roadmap.id)}
+                  isPending={isCompletePending}
+                />
+              );
+            })}
           </div>
         )}
       </CardContent>
@@ -243,9 +345,41 @@ function RoadmapCard({ roadmap }: { roadmap: Roadmap }) {
 }
 
 export function RoadmapsPage() {
+  const queryClient = useQueryClient();
+
   const { data: roadmaps = [], isLoading } = useQuery<Roadmap[]>({
     queryKey: ['roadmaps'],
     queryFn: () => api('/api/roadmaps'),
+  });
+
+  const { data: user } = useQuery<User>({
+    queryKey: ['user/profile'],
+    queryFn: () => api('/api/user/profile'),
+  });
+
+  const startMutation = useMutation({
+    mutationFn: (roadmapId: string) => api(`/api/roadmaps/${roadmapId}/start`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user/profile'] });
+      toast.success('Roadmap started! Work through it week by week.');
+    },
+    onError: () => toast.error('Failed to start roadmap'),
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: (roadmapId: string) => api(`/api/roadmaps/${roadmapId}/week/complete`, { method: 'POST' }),
+    onSuccess: (updatedUser: User) => {
+      queryClient.invalidateQueries({ queryKey: ['user/profile'] });
+      const active = updatedUser.activeRoadmapId;
+      const completed = active ? (updatedUser.roadmapProgress?.[active] ?? 0) : 0;
+      const roadmap = roadmaps.find(r => r.id === active);
+      if (roadmap && completed >= roadmap.durationWeeks) {
+        toast.success('Roadmap complete! Amazing work.');
+      } else {
+        toast.success(`Week ${completed} complete! Keep it up.`);
+      }
+    },
+    onError: () => toast.error('Failed to mark week complete'),
   });
 
   return (
@@ -272,7 +406,15 @@ export function RoadmapsPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {roadmaps.map((roadmap) => (
-              <RoadmapCard key={roadmap.id} roadmap={roadmap} />
+              <RoadmapCard
+                key={roadmap.id}
+                roadmap={roadmap}
+                user={user}
+                onStart={(id) => startMutation.mutate(id)}
+                onCompleteWeek={(id) => completeMutation.mutate(id)}
+                isStartPending={startMutation.isPending}
+                isCompletePending={completeMutation.isPending}
+              />
             ))}
           </div>
         )}

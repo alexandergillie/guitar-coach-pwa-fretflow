@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { SEED_EXERCISES } from '@shared/mock-data';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api-client';
+import type { Exercise } from '@shared/types';
 import { Button } from '@/components/ui/button';
 import { TabViewer } from '@/components/ui/tab-viewer';
 import { Badge } from '@/components/ui/badge';
@@ -15,8 +17,12 @@ import { generateTablature, getDrillPositions } from '@shared/pattern-utils';
 export function ExerciseDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const exercise = SEED_EXERCISES.find(e => e.id === id);
-  
+  const { data: exercises = [], isLoading } = useQuery<Exercise[]>({
+    queryKey: ['exercises'],
+    queryFn: () => api('/api/exercises'),
+  });
+  const exercise = exercises.find(e => e.id === id);
+
   // Position and drill mode state
   const [position, setPosition] = useState(exercise?.defaultPosition || 1);
   const [drillMode, setDrillMode] = useState(false);
@@ -36,6 +42,16 @@ export function ExerciseDetailPage() {
     return getDrillPositions(exercise.drill);
   }, [exercise]);
   
+  if (isLoading) return (
+    <AppLayout container>
+      <div className="max-w-4xl mx-auto space-y-8 animate-pulse">
+        <div className="h-4 w-24 bg-zinc-800 rounded" />
+        <div className="h-12 w-2/3 bg-zinc-800 rounded" />
+        <div className="h-6 w-full bg-zinc-800 rounded" />
+        <div className="h-64 bg-zinc-800 rounded-xl" />
+      </div>
+    </AppLayout>
+  );
   if (!exercise) return (
     <AppLayout container>
       <div className="text-center py-20">Exercise not found.</div>

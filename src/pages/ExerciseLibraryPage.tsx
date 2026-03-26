@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { SEED_EXERCISES } from '@shared/mock-data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Search, Filter, Music, ChevronRight, MoveHorizontal } from 'lucide-react';
+import { Search, Music, ChevronRight, MoveHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api-client';
+import type { Exercise } from '@shared/types';
 export function ExerciseLibraryPage() {
   const [search, setSearch] = useState('');
   const [difficulty, setDifficulty] = useState<string | null>(null);
-  const filtered = SEED_EXERCISES.filter(ex => {
+  const { data: exercises = [], isLoading } = useQuery<Exercise[]>({
+    queryKey: ['exercises'],
+    queryFn: () => api('/api/exercises'),
+  });
+  const filtered = exercises.filter(ex => {
     const matchesSearch = ex.title.toLowerCase().includes(search.toLowerCase()) || 
                           ex.technique.some(t => t.toLowerCase().includes(search.toLowerCase()));
     const matchesDiff = difficulty ? ex.difficulty === difficulty : true;
@@ -50,7 +56,10 @@ export function ExerciseLibraryPage() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((ex) => (
+          {isLoading && [1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="h-48 rounded-xl bg-zinc-800/40 animate-pulse" />
+          ))}
+          {!isLoading && filtered.map((ex) => (
             <Link key={ex.id} to={`/exercise/${ex.id}`}>
               <Card className="h-full bg-zinc-900/40 border-zinc-800 hover:border-orange-500/50 hover:bg-zinc-900/60 transition-all cursor-pointer group">
                 <CardHeader className="pb-3">
@@ -90,7 +99,7 @@ export function ExerciseLibraryPage() {
               </Card>
             </Link>
           ))}
-          {filtered.length === 0 && (
+          {!isLoading && filtered.length === 0 && (
             <div className="col-span-full py-12 text-center text-muted-foreground">
               No exercises found matching your search.
             </div>
