@@ -1,6 +1,12 @@
 /**
- * Wrangler config for the Cloudflare Durable Object template
- * STRICTLY DO NOT MODIFY THIS FILE - Hidden from AI to prevent breaking core functionality
+ * Wrangler config for FretFlow
+ *
+ * Environments:
+ *   production (default) – fretflow.alexandergillie.com
+ *   preview              – guitar-coach-pwa-fretflow-preview.<account>.workers.dev
+ *
+ * Deploy preview:  wrangler deploy --env preview
+ * Deploy prod:     wrangler deploy
  */
  {
 	"$schema": "node_modules/wrangler/config-schema.json",
@@ -59,5 +65,35 @@
         "preview_id": "a7b8330656bc4d1c9b7ca78fe70d553d"
       }
     ],
-    "send_metrics": true
+    "send_metrics": true,
+
+    // ---------------------------------------------------------------------------
+    // Preview environment
+    // Deploy with: wrangler deploy --env preview
+    // Preview URL:  https://guitar-coach-pwa-fretflow-preview.<account>.workers.dev
+    //
+    // Uses the same code and top-level bindings (KV, R2) as production but
+    // deploys as a separate named worker so it gets its own isolated Durable
+    // Object storage — no risk of touching production data while testing.
+    // ---------------------------------------------------------------------------
+    "env": {
+      "preview": {
+        "name": "guitar-coach-pwa-fretflow-preview",
+        "workers_dev": true,
+        "durable_objects": {
+          "bindings": [
+            {
+              "name": "GlobalDurableObject",
+              "class_name": "GlobalDurableObject"
+            }
+          ]
+        },
+        "migrations": [
+          {
+            "tag": "v1",
+            "new_sqlite_classes": ["GlobalDurableObject"]
+          }
+        ]
+      }
+    }
 }
