@@ -46,6 +46,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Never cache auth-related paths — Clerk's OAuth callback (/sign-in/sso-callback)
+  // and any Clerk handshake query params must always hit the network so the
+  // session handshake completes correctly.
+  if (url.pathname.startsWith('/sign-in') || url.searchParams.has('__clerk_status') || url.searchParams.has('__clerk_db_jwt')) {
+    return;
+  }
+
   // API requests - network first with cache fallback
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
