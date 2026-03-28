@@ -11,7 +11,7 @@ build/
 .netlify/
 
 # Environment variables
-.env
+# .env is committed — it contains only public VITE_ keys (safe to commit)
 .env.local
 .env.development.local
 .env.test.local
