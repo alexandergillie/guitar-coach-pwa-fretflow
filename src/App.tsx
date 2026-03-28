@@ -4,7 +4,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ClerkProvider, SignedIn, SignedOut, useAuth, SignIn } from '@clerk/clerk-react';
+import { ClerkProvider, SignedIn, SignedOut, useAuth, useUser, SignIn } from '@clerk/clerk-react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
 import { PwaInstallPrompt } from '@/components/PwaInstallPrompt';
@@ -72,12 +72,14 @@ const router = createBrowserRouter([
   },
 ]);
 
-/** Syncs the Clerk token into the api-client whenever auth changes. */
+/** Syncs the Clerk token and user name into the api-client whenever auth changes. */
 function AuthSync() {
   const { getToken } = useAuth();
+  const { user } = useUser();
   useEffect(() => {
-    configureAuth(() => getToken());
-  }, [getToken]);
+    const fullName = user?.fullName || user?.firstName || null;
+    configureAuth(() => getToken(), fullName);
+  }, [getToken, user]);
   return null;
 }
 

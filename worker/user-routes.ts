@@ -6,11 +6,22 @@ import type { SkillProfile, PracticeSession } from "@shared/types";
 import { SEED_ROADMAPS } from "@shared/mock-data";
 import { getAuthUserId } from './auth';
 
-/** Ensures a user profile exists for the given userId, creating it if new. */
-async function ensureUser(env: Env, userId: string, name = 'Guitarist') {
+const DEFAULT_NAME = 'Guitarist';
+
+/**
+ * Ensures a user profile exists for the given userId, creating it if new.
+ * If a real name is provided and the stored name is still the default
+ * placeholder, it will be updated so SSO names populate on first sign-in.
+ */
+async function ensureUser(env: Env, userId: string, name?: string) {
   const user = new UserEntity(env, userId);
   if (!await user.exists()) {
-    await UserEntity.create(env, { id: userId, name, streak: 0 });
+    await UserEntity.create(env, { id: userId, name: name || DEFAULT_NAME, streak: 0 });
+  } else if (name) {
+    const state = await user.getState();
+    if (state.name === DEFAULT_NAME) {
+      await user.patch({ name });
+    }
   }
   return user;
 }
@@ -32,7 +43,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.get('/api/user/profile', async (c) => {
     const userId = await getAuthUserId(c);
     if (!userId) return c.json({ success: false, error: 'Unauthorized' }, 401);
-    const user = await ensureUser(c.env, userId);
+    const name = c.req.query('name') || undefined;
+    const user = await ensureUser(c.env, userId, name);
     return ok(c, await user.getState());
   });
 
