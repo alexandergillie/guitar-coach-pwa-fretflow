@@ -532,18 +532,17 @@ export function AssessmentPage() {
 
   const handleSave = () => {
     if (!computedProfile) return;
-    // Persist raw recordings for future analysis
+    // Fire-and-forget: upload raw recordings to R2 for future analysis
     const recordings = TESTS.map((t, i) => ({
       id: t.id,
       notes: testResults[i]?.notes ?? [],
       bpm: testResults[i]?.bpm ?? null,
       duration: t.duration,
     }));
-    const existing = JSON.parse(localStorage.getItem('fretflow_assessment_recordings') ?? '[]');
-    localStorage.setItem(
-      'fretflow_assessment_recordings',
-      JSON.stringify([...existing, { timestamp: Date.now(), tests: recordings }])
-    );
+    api('/api/assessments/recordings', {
+      method: 'POST',
+      body: JSON.stringify({ timestamp: Date.now(), tests: recordings }),
+    }).catch(() => {/* non-critical, ignore failures */});
     saveMutation.mutate({ skillProfile: computedProfile, goals: selectedGoals });
   };
 

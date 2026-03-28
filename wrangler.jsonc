@@ -46,5 +46,11 @@
         ]
       }
     ],
+    "r2_buckets": [
+      {
+        "binding": "ASSESSMENT_RECORDINGS",
+        "bucket_name": "assessment-recordings"
+      }
+    ],
     "send_metrics": true
 }
