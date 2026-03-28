@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import type { Env } from './core-utils';
-import { createClerkClient } from '@clerk/backend';
+import { verifyToken } from '@clerk/backend';
 
 type AuthEnv = Env & { CLERK_SECRET_KEY?: string };
 
@@ -25,8 +25,7 @@ export async function getAuthUserId(c: Context<{ Bindings: Env }>): Promise<stri
 
   const token = authHeader.slice(7);
   try {
-    const clerk = createClerkClient({ secretKey: clerkKey });
-    const payload = await clerk.verifyToken(token);
+    const payload = await verifyToken(token, { secretKey: clerkKey });
     return payload.sub;
   } catch {
     return null;
