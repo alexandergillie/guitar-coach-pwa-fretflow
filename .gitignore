@@ -66,6 +66,9 @@ wrangler.toml.backup
 .bun/
 bun.lockb
 
+# npm (not used — this is a Bun project)
+package-lock.json
+
 # Bootstrap marker
 .bootstrap-complete
 
