@@ -257,6 +257,8 @@ function ListeningTest({
   const [timeLeft, setTimeLeft] = useState(test.duration);
   const startTimeRef = useRef<number | null>(null);
   const notesSnapshotRef = useRef<Note[]>([]);
+  const detectedNotesRef = useRef(detectedNotes);
+  detectedNotesRef.current = detectedNotes;
 
   const handleStart = async () => {
     onReset();
@@ -289,12 +291,12 @@ function ListeningTest({
       setTimeLeft(remaining);
       if (remaining <= 0) {
         clearInterval(interval);
-        notesSnapshotRef.current = [...detectedNotes];
+        notesSnapshotRef.current = [...detectedNotesRef.current];
         setTestState('done');
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [testState, test.duration, detectedNotes]);
+  }, [testState, test.duration]);
 
   const handleSubmit = () => {
     onComplete({
