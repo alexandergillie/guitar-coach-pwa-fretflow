@@ -81,17 +81,39 @@ function AuthSync() {
   return null;
 }
 
+// Theme definitions mirrored from use-ui-theme.ts — keeps SignInScreen
+// independent of React context while still matching the active theme.
+const SIGN_IN_THEMES: Record<string, { bg: string; card: string; input: string; accent: string; text: string; subtext: string; isDark: boolean }> = {
+  default: { bg: '#09090b', card: '#18181b', input: '#27272a', accent: '#f97316', text: '#fafafa', subtext: '#a1a1aa', isDark: true },
+  studio:  { bg: '#060d1a', card: '#0a1628', input: '#0f1f38', accent: '#00c897', text: '#d0dbe8', subtext: '#7a90a8', isDark: true },
+  acoustic:{ bg: '#fdf6e9', card: '#faf0d8', input: '#f0e4c4', accent: '#c2410c', text: '#1c1008', subtext: '#6b4c2a', isDark: false },
+  neon:    { bg: '#080010', card: '#0e0020', input: '#180030', accent: '#e040fb', text: '#ede0f5', subtext: '#9966bb', isDark: true },
+};
+
 /** Full-page sign-in screen shown when the user is not authenticated. */
 function SignInScreen() {
+  const themeKey = (localStorage.getItem('ui-theme') ?? 'default') as string;
+  const t = SIGN_IN_THEMES[themeKey] ?? SIGN_IN_THEMES.default;
+
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-8 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-4" style={{ backgroundColor: t.bg }}>
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-black tracking-tight text-white">FretFlow</h1>
-        <p className="text-zinc-400">Sign in to start practicing</p>
+        <h1 className="text-3xl font-black tracking-tight" style={{ color: t.text }}>FretFlow</h1>
+        <p style={{ color: t.subtext }}>Sign in to start practicing</p>
       </div>
       <SignIn routing="hash" appearance={{
-        variables: { colorPrimary: '#f97316', colorBackground: '#09090b', colorInputBackground: '#18181b', colorText: '#fafafa' },
-        elements: { card: 'bg-zinc-900 border border-zinc-800 shadow-xl', formButtonPrimary: 'bg-orange-500 hover:bg-orange-600' }
+        variables: {
+          colorPrimary: t.accent,
+          colorBackground: t.card,
+          colorInputBackground: t.input,
+          colorText: t.text,
+          colorTextSecondary: t.subtext,
+          colorNeutral: t.isDark ? '#ffffff' : '#000000',
+        },
+        elements: {
+          card: `shadow-2xl border`,
+          formButtonPrimary: `shadow-md`,
+        },
       }} />
     </div>
   );
