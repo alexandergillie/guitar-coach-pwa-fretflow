@@ -126,8 +126,8 @@ function computeSkillProfile(
     rhythm,
     alternatePicking: clamp(Math.round((fingerScore + speedScore) / 2)),
     legato: fingerScore,
-    tapping: clamp(Math.round(speedScore * 0.75)),
-    sweepPicking: clamp(Math.round(speedScore * 0.6)),
+    tapping: 0,       // requires dedicated tapping test — not assessable here
+    sweepPicking: 0,  // requires dedicated sweep test — not assessable here
     bending: oscillation,
     vibrato: clamp(Math.round((oscillation + fingerScore) / 2)),
     theory: rangeScore,
