@@ -10,6 +10,14 @@ import { api } from '@/lib/api-client';
 import { User, PracticeSession, Exercise } from '@shared/types';
 import { format } from 'date-fns';
 export function HomePage() {
+  // Prefs are stored in KV at the edge — much faster than the DO profile fetch.
+  // We use the name from prefs immediately to avoid the "Guitarist" flash,
+  // then fall back to the full profile once it loads.
+  const { data: prefs } = useQuery<{ name?: string; theme?: string }>({
+    queryKey: ['user/prefs'],
+    queryFn: () => api('/api/user/prefs'),
+    staleTime: 1000 * 60 * 60, // 1 hour — rarely changes
+  });
   const { data: user } = useQuery<User>({ queryKey: ['user/profile'], queryFn: () => api('/api/user/profile') });
   const { data: sessions = [] } = useQuery<PracticeSession[]>({ queryKey: ['sessions'], queryFn: () => api('/api/sessions') });
   const { data: exercises = [] } = useQuery<Exercise[]>({ queryKey: ['exercises'], queryFn: () => api('/api/exercises') });
@@ -38,7 +46,7 @@ export function HomePage() {
       <div className="space-y-8 animate-fade-in">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back, {user?.name || 'Shredder'}!</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back, {prefs?.name || user?.name || 'Shredder'}!</h1>
             <p className="text-muted-foreground">
               {user?.streak && user.streak > 0 
                 ? `You've practiced for ${user.streak} days straight. Keep the flow!` 

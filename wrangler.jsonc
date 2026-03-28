@@ -52,5 +52,12 @@
         "bucket_name": "assessment-recordings"
       }
     ],
+    "kv_namespaces": [
+      {
+        "binding": "USER_PREFS",
+        "id": "a7b8330656bc4d1c9b7ca78fe70d553d",
+        "preview_id": "a7b8330656bc4d1c9b7ca78fe70d553d"
+      }
+    ],
     "send_metrics": true
 }

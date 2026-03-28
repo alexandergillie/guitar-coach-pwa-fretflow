@@ -5,7 +5,6 @@ export interface ApiResponse<T = unknown> {
 }
 export interface User {
   id: string;
-  name: string;
   skillProfile?: SkillProfile;
   streak: number;
   lastPracticeAt?: number;

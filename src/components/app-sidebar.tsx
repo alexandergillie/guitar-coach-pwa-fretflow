@@ -28,6 +28,12 @@ export function AppSidebar(): JSX.Element {
     queryKey: ['user/profile'], 
     queryFn: () => api('/api/user/profile') 
   });
+  const { data: prefs } = useQuery<{ name?: string; theme?: string }>({
+    queryKey: ['user/prefs'],
+    queryFn: () => api('/api/user/prefs'),
+    staleTime: 1000 * 60 * 60,
+  });
+  const displayName = prefs?.name || 'Shredder';
   const getRank = (streak: number) => {
     if (streak > 30) return "Guitar Sage";
     if (streak > 15) return "Virtuoso";
@@ -66,11 +72,11 @@ export function AppSidebar(): JSX.Element {
           <div className="flex items-center gap-2 overflow-hidden">
             <div className="size-8 shrink-0 rounded-full bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
               <span className="text-[10px] font-bold text-orange-500">
-                {user?.name?.[0] || 'G'}
+                {displayName[0]}
               </span>
             </div>
             <div className="flex flex-col truncate group-data-[collapsible=icon]:hidden">
-              <span className="text-xs font-medium text-foreground truncate">{user?.name || "Guitar God"}</span>
+              <span className="text-xs font-medium text-foreground truncate">{displayName}</span>
               <span className="text-[10px] text-muted-foreground truncate">{getRank(user?.streak || 0)}</span>
             </div>
           </div>

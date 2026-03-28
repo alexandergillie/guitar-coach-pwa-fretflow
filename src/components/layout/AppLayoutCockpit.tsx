@@ -45,6 +45,12 @@ export function AppLayoutCockpit({ children, container = false, contentClassName
     queryKey: ['user/profile'],
     queryFn: () => api('/api/user/profile'),
   });
+  const { data: prefs } = useQuery<{ name?: string; theme?: string }>({
+    queryKey: ['user/prefs'],
+    queryFn: () => api('/api/user/prefs'),
+    staleTime: 1000 * 60 * 60,
+  });
+  const displayName = prefs?.name || 'Shredder';
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -88,14 +94,14 @@ export function AppLayoutCockpit({ children, container = false, contentClassName
         {/* Right side: user + switchers */}
         <div className="flex shrink-0 items-center gap-2">
           {/* User badge */}
-          {user && (
+          {(user || prefs) && (
             <div className="hidden sm:flex items-center gap-2 rounded-full border border-border bg-muted/40 py-1 pl-1.5 pr-2.5">
               <div className="flex h-5 w-5 items-center justify-center rounded-full border border-orange-500/20 bg-orange-500/10">
                 <span className="text-[9px] font-bold text-orange-500">
-                  {user.name?.[0] ?? 'G'}
+                  {displayName[0]}
                 </span>
               </div>
-              <span className="text-xs font-medium">{user.name ?? 'Guitar God'}</span>
+              <span className="text-xs font-medium">{displayName}</span>
               <span className="text-[10px] text-muted-foreground">
                 {getRank(user.streak ?? 0)}
               </span>

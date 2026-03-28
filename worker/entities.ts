@@ -4,7 +4,7 @@ import { MOCK_USERS, SEED_EXERCISES, SEED_ROADMAPS } from "@shared/mock-data";
 export class UserEntity extends IndexedEntity<User> {
   static readonly entityName = "user";
   static readonly indexName = "users";
-  static readonly initialState: User = { id: "", name: "", streak: 0 };
+  static readonly initialState: User = { id: "", streak: 0 };
   static seedData = MOCK_USERS;
 }
 export class ExerciseEntity extends IndexedEntity<Exercise> {

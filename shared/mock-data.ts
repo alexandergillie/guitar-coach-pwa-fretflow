@@ -2,7 +2,6 @@ import type { User, Exercise, Roadmap, SkillProfile, RoadmapWeek } from './types
 export const MOCK_USERS: User[] = [
   { 
     id: 'u1', 
-    name: 'Guitar God', 
     streak: 5,
     skillProfile: {
       alternatePicking: 75,

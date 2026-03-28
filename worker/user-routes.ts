@@ -1,27 +1,18 @@
 import { Hono } from "hono";
 import type { Env } from './core-utils';
 import { UserEntity, ExerciseEntity, RoadmapEntity, PracticeSessionEntity } from "./entities";
-import { ok, bad, notFound } from './core-utils';
+import { ok, bad, notFound, Index } from './core-utils';
 import type { SkillProfile, PracticeSession } from "@shared/types";
 import { SEED_ROADMAPS } from "@shared/mock-data";
 import { getAuthUserId } from './auth';
 
-const DEFAULT_NAME = 'Guitarist';
-
 /**
  * Ensures a user profile exists for the given userId, creating it if new.
- * If a real name is provided and the stored name is still the default
- * placeholder, it will be updated so SSO names populate on first sign-in.
  */
-async function ensureUser(env: Env, userId: string, name?: string) {
+async function ensureUser(env: Env, userId: string) {
   const user = new UserEntity(env, userId);
   if (!await user.exists()) {
-    await UserEntity.create(env, { id: userId, name: name || DEFAULT_NAME, streak: 0 });
-  } else if (name) {
-    const state = await user.getState();
-    if (state.name === DEFAULT_NAME) {
-      await user.patch({ name });
-    }
+    await UserEntity.create(env, { id: userId, streak: 0 });
   }
   return user;
 }
@@ -39,12 +30,40 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return ok(c, await entity.getState());
   });
 
+  // USER PREFS (KV — fast edge reads for name + theme)
+  app.get('/api/user/prefs', async (c) => {
+    const userId = await getAuthUserId(c);
+    if (!userId) return c.json({ success: false, error: 'Unauthorized' }, 401);
+    const raw = await c.env.USER_PREFS.get(`prefs:${userId}`);
+    const prefs = raw ? JSON.parse(raw) : {};
+    return ok(c, prefs);
+  });
+
+  app.put('/api/user/prefs', async (c) => {
+    const userId = await getAuthUserId(c);
+    if (!userId) return c.json({ success: false, error: 'Unauthorized' }, 401);
+    const updates = await c.req.json<{ name?: string; theme?: string }>();
+    const raw = await c.env.USER_PREFS.get(`prefs:${userId}`);
+    const current = raw ? JSON.parse(raw) : {};
+    const next = { ...current, ...updates };
+    await c.env.USER_PREFS.put(`prefs:${userId}`, JSON.stringify(next));
+    return ok(c, next);
+  });
+
   // USER PROFILE
   app.get('/api/user/profile', async (c) => {
     const userId = await getAuthUserId(c);
     if (!userId) return c.json({ success: false, error: 'Unauthorized' }, 401);
     const name = c.req.query('name') || undefined;
-    const user = await ensureUser(c.env, userId, name);
+    const user = await ensureUser(c.env, userId);
+    // Keep KV prefs in sync when a real name is available from SSO
+    if (name) {
+      const raw = await c.env.USER_PREFS.get(`prefs:${userId}`);
+      const prefs = raw ? JSON.parse(raw) : {};
+      if (!prefs.name) {
+        await c.env.USER_PREFS.put(`prefs:${userId}`, JSON.stringify({ ...prefs, name }));
+      }
+    }
     return ok(c, await user.getState());
   });
 
@@ -69,6 +88,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       id: crypto.randomUUID(),
       timestamp: Date.now(),
     });
+    // Also index the session under the user's own index for efficient per-user listing
+    const userSessionIdx = new Index<string>(c.env, `sessions:${userId}`);
+    await userSessionIdx.add(session.id);
     // Update streak
     const user = await ensureUser(c.env, userId);
     const userData = await user.getState();
@@ -85,8 +107,15 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.get('/api/sessions', async (c) => {
     const userId = await getAuthUserId(c);
     if (!userId) return c.json({ success: false, error: 'Unauthorized' }, 401);
-    const page = await PracticeSessionEntity.list(c.env);
-    return ok(c, page.items.filter(s => s.userId === userId));
+    // Read from per-user index — no full scan, no cross-user data leakage
+    const userSessionIdx = new Index<string>(c.env, `sessions:${userId}`);
+    const ids = await userSessionIdx.list();
+    const sessions = await Promise.all(
+      ids.map(id => new PracticeSessionEntity(c.env, id).getState())
+    );
+    // Sort newest first
+    sessions.sort((a, b) => b.timestamp - a.timestamp);
+    return ok(c, sessions);
   });
 
   // ASSESSMENT RECORDINGS
