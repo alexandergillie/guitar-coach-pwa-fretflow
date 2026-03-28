@@ -80,36 +80,16 @@ function scoreRhythm(notes: Note[]): number {
   return clamp(Math.round(100 - stdDev / 3));
 }
 
-function avgConfidence(notes: Note[]): number {
-  if (notes.length === 0) return 20;
-  return clamp(Math.round((notes.reduce((a, b) => a + b.confidence, 0) / notes.length) * 100));
-}
-
-function scoreSpeed(notes: Note[], duration: number): number {
-  if (duration === 0 || notes.length === 0) return 15;
-  // Guitar notes per second: ~1.5 = beginner, 4 = intermediate, 8+ = advanced
-  return clamp(Math.round((notes.length / duration) * 12));
-}
-
-
-function computeSkillProfile(
-  timingNotes: Note[],
-  chromaticNotes: Note[],
-  chromaticDuration: number,
-): SkillProfile {
-  const rhythm = scoreRhythm(timingNotes);
-  const fingerScore = avgConfidence(chromaticNotes);
-  const speedScore = scoreSpeed(chromaticNotes, chromaticDuration);
-
+function computeSkillProfile(timingNotes: Note[]): SkillProfile {
   return {
-    rhythm,
-    alternatePicking: clamp(Math.round((fingerScore + speedScore) / 2)),
-    legato: fingerScore,
-    tapping: 0,       // requires dedicated tapping test
-    sweepPicking: 0,  // requires dedicated sweep test
-    bending: 0,       // free play is too open-ended to measure this reliably
-    vibrato: 0,       // free play is too open-ended to measure this reliably
-    theory: 0,        // free play is too open-ended to measure this reliably
+    rhythm: scoreRhythm(timingNotes),
+    alternatePicking: 0,
+    legato: 0,
+    tapping: 0,
+    sweepPicking: 0,
+    bending: 0,
+    vibrato: 0,
+    theory: 0,
   };
 }
 
@@ -543,12 +523,8 @@ export function AssessmentPage() {
       resetAnalysis();
     } else {
       // All tests done — compute profile
-      const [t1, t2, t3] = newResults;
-      const profile = computeSkillProfile(
-        t1?.notes || [],
-        t2?.notes || [],
-        t2?.duration || TESTS[1].duration,
-      );
+      const [t1] = newResults;
+      const profile = computeSkillProfile(t1?.notes || []);
       setComputedProfile(profile);
       setPhase('results');
     }
@@ -556,6 +532,18 @@ export function AssessmentPage() {
 
   const handleSave = () => {
     if (!computedProfile) return;
+    // Persist raw recordings for future analysis
+    const recordings = TESTS.map((t, i) => ({
+      id: t.id,
+      notes: testResults[i]?.notes ?? [],
+      bpm: testResults[i]?.bpm ?? null,
+      duration: t.duration,
+    }));
+    const existing = JSON.parse(localStorage.getItem('fretflow_assessment_recordings') ?? '[]');
+    localStorage.setItem(
+      'fretflow_assessment_recordings',
+      JSON.stringify([...existing, { timestamp: Date.now(), tests: recordings }])
+    );
     saveMutation.mutate({ skillProfile: computedProfile, goals: selectedGoals });
   };
 
