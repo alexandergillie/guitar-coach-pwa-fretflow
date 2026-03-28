@@ -77,6 +77,18 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return ok(c, page.items.filter(s => s.userId === userId));
   });
 
+  // ASSESSMENT RECORDINGS
+  app.post('/api/assessments/recordings', async (c) => {
+    const userId = await getAuthUserId(c);
+    if (!userId) return c.json({ success: false, error: 'Unauthorized' }, 401);
+    const body = await c.req.json();
+    const key = `${userId}/${Date.now()}.json`;
+    await c.env.ASSESSMENT_RECORDINGS.put(key, JSON.stringify(body), {
+      httpMetadata: { contentType: 'application/json' },
+    });
+    return ok(c, { key });
+  });
+
   // ROADMAPS
   app.get('/api/roadmaps', async (c) => {
     await RoadmapEntity.ensureSeed(c.env);
