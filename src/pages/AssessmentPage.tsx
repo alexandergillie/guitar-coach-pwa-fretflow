@@ -91,46 +91,25 @@ function scoreSpeed(notes: Note[], duration: number): number {
   return clamp(Math.round((notes.length / duration) * 12));
 }
 
-function scorePitchRange(notes: Note[]): number {
-  const classes = new Set(notes.map(n => n.note?.replace(/\d+/g, '') || '').filter(Boolean));
-  return clamp(Math.round((classes.size / 12) * 100));
-}
-
-function scoreOscillation(notes: Note[]): number {
-  // Counts pitch direction reversals — a proxy for vibrato/bending presence
-  if (notes.length < 6) return 20;
-  let reversals = 0;
-  let prevDir: 1 | -1 | 0 = 0;
-  for (let i = 1; i < notes.length; i++) {
-    if (!notes[i].pitch || !notes[i - 1].pitch) continue;
-    const dir = notes[i].pitch! > notes[i - 1].pitch! ? 1 : notes[i].pitch! < notes[i - 1].pitch! ? -1 : 0;
-    if (dir !== 0 && prevDir !== 0 && dir !== prevDir) reversals++;
-    if (dir !== 0) prevDir = dir;
-  }
-  return clamp(reversals * 6);
-}
 
 function computeSkillProfile(
   timingNotes: Note[],
   chromaticNotes: Note[],
-  freeformNotes: Note[],
   chromaticDuration: number,
 ): SkillProfile {
   const rhythm = scoreRhythm(timingNotes);
   const fingerScore = avgConfidence(chromaticNotes);
   const speedScore = scoreSpeed(chromaticNotes, chromaticDuration);
-  const rangeScore = scorePitchRange(freeformNotes);
-  const oscillation = scoreOscillation(freeformNotes);
 
   return {
     rhythm,
     alternatePicking: clamp(Math.round((fingerScore + speedScore) / 2)),
     legato: fingerScore,
-    tapping: clamp(Math.round(speedScore * 0.75)),
-    sweepPicking: clamp(Math.round(speedScore * 0.6)),
-    bending: oscillation,
-    vibrato: clamp(Math.round((oscillation + fingerScore) / 2)),
-    theory: rangeScore,
+    tapping: 0,       // requires dedicated tapping test
+    sweepPicking: 0,  // requires dedicated sweep test
+    bending: 0,       // free play is too open-ended to measure this reliably
+    vibrato: 0,       // free play is too open-ended to measure this reliably
+    theory: 0,        // free play is too open-ended to measure this reliably
   };
 }
 
@@ -257,6 +236,8 @@ function ListeningTest({
   const [timeLeft, setTimeLeft] = useState(test.duration);
   const startTimeRef = useRef<number | null>(null);
   const notesSnapshotRef = useRef<Note[]>([]);
+  const detectedNotesRef = useRef(detectedNotes);
+  detectedNotesRef.current = detectedNotes;
 
   const handleStart = async () => {
     onReset();
@@ -289,12 +270,12 @@ function ListeningTest({
       setTimeLeft(remaining);
       if (remaining <= 0) {
         clearInterval(interval);
-        notesSnapshotRef.current = [...detectedNotes];
+        notesSnapshotRef.current = [...detectedNotesRef.current];
         setTestState('done');
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [testState, test.duration, detectedNotes]);
+  }, [testState, test.duration]);
 
   const handleSubmit = () => {
     onComplete({
@@ -566,7 +547,6 @@ export function AssessmentPage() {
       const profile = computeSkillProfile(
         t1?.notes || [],
         t2?.notes || [],
-        t3?.notes || [],
         t2?.duration || TESTS[1].duration,
       );
       setComputedProfile(profile);

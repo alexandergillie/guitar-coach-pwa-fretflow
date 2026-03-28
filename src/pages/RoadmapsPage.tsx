@@ -189,10 +189,10 @@ function RoadmapCard({
   const currentWeekNumber = weeksCompleted + 1;
 
   const totalExercises = roadmap.weeks.reduce((s, w) => s + w.exercises.length, 0);
-  const totalMinutes = roadmap.weeks.reduce(
-    (sum, w) => sum + w.exercises.reduce((s, e) => s + e.durationMinutes, 0),
-    0
-  );
+  const firstWeekBpms = roadmap.weeks[0]?.targetBpmRange.match(/\d+/g) ?? [];
+  const lastWeekBpms = roadmap.weeks[roadmap.weeks.length - 1]?.targetBpmRange.match(/\d+/g) ?? [];
+  const startBpm = firstWeekBpms[0] ?? '?';
+  const endBpm = lastWeekBpms[lastWeekBpms.length - 1] ?? '?';
 
   return (
     <Card className={`bg-zinc-900/40 border-zinc-800 overflow-hidden transition-colors ${isActive ? 'border-orange-500/40' : ''}`}>
@@ -259,8 +259,8 @@ function RoadmapCard({
           <div className="flex items-center gap-2 p-2 rounded-lg bg-zinc-800/50">
             <Target className="w-4 h-4 text-orange-400" />
             <div>
-              <p className="text-[10px] text-muted-foreground">Practice time</p>
-              <p className="text-sm font-semibold">{Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m</p>
+              <p className="text-[10px] text-muted-foreground">BPM range</p>
+              <p className="text-sm font-semibold">{startBpm} → {endBpm}</p>
             </div>
           </div>
         </div>
